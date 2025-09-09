@@ -22,7 +22,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Right Section - Auth Forms */}
-        <ScrollArea className="max-h-[calc(100vh-56px)]">{children}</ScrollArea>
+        <ScrollArea className="max-h-[calc(100vh-60px)]">{children}</ScrollArea>
       </Card>
     </div>
   );

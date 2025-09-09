@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { AxiosmainserviceInstanceWithToken } from "@/api-integrations/instance";
+import { AxiosInstanceWithToken } from "@/data/instance";
 import { toast } from "sonner";
-import { ChangeRoleSchema, UpdateFcmTokenSchema } from "@/schemas/auth/auth";
-import { UserUpdateSchema } from "@/schemas/auth/users";
+import { ChangeRoleSchema, UpdateFcmTokenSchema } from "@/schemas/auth";
+import { UserUpdateSchema } from "@/schemas/users";
 import {
   UserModel,
   UserResponseModel,
   ActivityResponse,
-} from "@/types/auth/user";
+} from "@/types/user";
 import { z } from "zod";
 
 // -----------------------------------------------
@@ -19,7 +19,7 @@ export const useGetAllUsers = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["user", "all"],
     queryFn: async (): Promise<UserResponseModel[]> => {
-      const response = await AxiosmainserviceInstanceWithToken.get("/api/v1/user/all");
+      const response = await AxiosInstanceWithToken.get("/api/v1/user/all");
       return response.data;
     },
     enabled,
@@ -34,7 +34,7 @@ export const useGetCurrentUserProfile = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["user", "profile"],
     queryFn: async (): Promise<UserModel> => {
-      const response = await AxiosmainserviceInstanceWithToken.get("/api/v1/user/profile");
+      const response = await AxiosInstanceWithToken.get("/api/v1/user/profile");
       return response.data;
     },
     enabled,
@@ -51,7 +51,7 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: async (data: z.infer<typeof UserUpdateSchema>) => {
       const validatedData = UserUpdateSchema.parse(data);
-      const response = await AxiosmainserviceInstanceWithToken.put(
+      const response = await AxiosInstanceWithToken.put(
         "/api/v1/user/update-user",
         validatedData
       );
@@ -73,7 +73,7 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      await AxiosmainserviceInstanceWithToken.delete(`/api/v1/user/delete_user/${userId}`);
+      await AxiosInstanceWithToken.delete(`/api/v1/user/delete_user/${userId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["user", "all"]);
@@ -91,7 +91,7 @@ export const useChangeUserRole = () => {
   return useMutation({
     mutationFn: async (data: z.infer<typeof ChangeRoleSchema>) => {
       const validatedData = ChangeRoleSchema.parse(data);
-      const response = await AxiosmainserviceInstanceWithToken.post(
+      const response = await AxiosInstanceWithToken.post(
         "/api/v1/user/change-role",
         validatedData
       );
@@ -114,7 +114,7 @@ export const useUpdateFcmToken = () => {
   return useMutation({
     mutationFn: async (fcmToken: string) => {
       const validatedData = UpdateFcmTokenSchema.parse({ fcmtoken: fcmToken });
-      const response = await AxiosmainserviceInstanceWithToken.post(
+      const response = await AxiosInstanceWithToken.post(
         "/api/v1/user/update-fcm-token",
         validatedData
       );
@@ -135,7 +135,7 @@ export const useGetFcmToken = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["user", "fcm-token"],
     queryFn: async (): Promise<{ fcmtoken: string | null }> => {
-      const response = await AxiosmainserviceInstanceWithToken.get("/api/v1/user/fcm-token");
+      const response = await AxiosInstanceWithToken.get("/api/v1/user/fcm-token");
       return response.data;
     },
     enabled,
@@ -150,7 +150,7 @@ export const useGetUserActivity = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["user", "activity"],
     queryFn: async (): Promise<ActivityResponse[]> => {
-      const response = await AxiosmainserviceInstanceWithToken.get("/api/v1/user/activity");
+      const response = await AxiosInstanceWithToken.get("/api/v1/user/activity");
       return response.data;
     },
     enabled,
@@ -195,7 +195,7 @@ export const useAdminUserManagement = () => {
     return deleteUser.mutateAsync(userId);
   };
 
-  const handleChangeUserRole = async (userId: string, newRole: "student" | "teacher" | "admin") => {
+  const handleChangeUserRole = async (userId: string, newRole: "super_admin" | "admin" | "business_user" | "standard_user") => {
     return changeRole.mutateAsync({ user_id: userId, new_role: newRole });
   };
 

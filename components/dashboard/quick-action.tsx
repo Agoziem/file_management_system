@@ -10,7 +10,7 @@ const fetchQuickActions = [
       title: "Upload Images",
       icon: <ImageIcon className="h-6 w-6" />,
       href: "/images/upload",
-      iconBg: "bg-muted",
+      iconBg: "bg-secondary",
       iconColor: "text-primary",
     },
     {
@@ -18,7 +18,7 @@ const fetchQuickActions = [
       title: "Manage Users",
       icon: <User className="h-6 w-6" />,
       href: "/admin/user-management",
-      iconBg: "bg-muted text-primary",
+      iconBg: "bg-secondary text-primary",
       iconColor: "text-primary",
     },
     {
@@ -26,7 +26,7 @@ const fetchQuickActions = [
       title: "Upload Documents",
       icon: <FileText className="h-6 w-6" />,
       href: "/documents/upload",
-      iconBg: "bg-muted text-primary",
+      iconBg: "bg-secondary text-primary",
       iconColor: "text-primary",
     },
     {
@@ -34,7 +34,7 @@ const fetchQuickActions = [
       title: "Upload Videos",
       icon: <VideoIcon className="h-6 w-6" />,
       href: "/videos/upload",
-      iconBg: "bg-muted text-primary",
+      iconBg: "bg-secondary text-primary",
       iconColor: "text-primary",
     },
   ];

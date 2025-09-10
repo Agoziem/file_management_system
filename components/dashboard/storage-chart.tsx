@@ -38,14 +38,14 @@ export function ChartRadialShape({
     { 
       storage: formatStorage(totalStorage), 
       space_used: usagePercentage,
-      fill: usagePercentage > 80 ? "hsl(var(--destructive))" : "hsl(var(--primary))"
+      fill: usagePercentage > 80 ? "var(--destructive)" : "var(--primary)"
     },
   ];
 
   const chartConfig = {
     space_used: {
       label: `of ${formatStorage(totalStorage)}`,
-      color: "var(--chart-2)",
+      color: "var(--chart-1)",
     },
   } satisfies ChartConfig;
   return (
@@ -65,7 +65,7 @@ export function ChartRadialShape({
             gridType="circle"
             radialLines={false}
             stroke="none"
-            className="first:fill-muted last:fill-background"
+            className="first:fill-secondary last:fill-background"
             polarRadius={[86, 74]}
           />
           <RadialBar 
@@ -121,7 +121,7 @@ export function ChartRadialShape({
           <span className="text-muted-foreground">Total:</span>
           <span className="font-medium">{formatStorage(totalStorage)}</span>
         </div>
-        <div className="w-full bg-muted rounded-full h-2 mt-3">
+        <div className="w-full bg-secondary rounded-full h-2 mt-3">
           <div 
             className={`h-2 rounded-full transition-all duration-300 ${
               usagePercentage > 80 ? 'bg-destructive' : 'bg-primary'

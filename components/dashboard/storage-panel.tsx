@@ -15,8 +15,8 @@ export const StoragePanelContent = () => (
           <div className="space-y-4 mt-2">
             {storageData.map((item, index) => (
               <div key={index} className="flex items-center gap-3">
-                <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-lg">
-                  <item.icon className="text-muted-foreground h-4 w-4" />
+                <div className="bg-secondary flex h-8 w-8 items-center justify-center rounded-lg">
+                  <item.icon className="text-secondary-foreground h-4 w-4" />
                 </div>
                 <div className="flex-1">
                   <div className="mb-1 flex items-center justify-between">

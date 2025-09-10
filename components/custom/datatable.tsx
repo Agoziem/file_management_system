@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,8 +16,10 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
+  ArchiveIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronFirstIcon,
   ChevronLastIcon,
@@ -27,14 +29,18 @@ import {
   CircleAlertIcon,
   CircleXIcon,
   Columns3Icon,
+  CopyIcon,
+  EditIcon,
   EllipsisIcon,
   FilterIcon,
+  LinkIcon,
   ListFilterIcon,
   PlusIcon,
+  Share2Icon,
   TrashIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,10 +51,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -63,26 +69,26 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -90,35 +96,62 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { FileResponse } from "@/types/files";
+import SocialShare from "@/components/custom/social-share";
+import moment from "moment";
 
-type Item = {
-  id: string
-  name: string
-  email: string
-  location: string
-  flag: string
-  status: "Active" | "Inactive" | "Pending"
-  balance: number
-}
+type Item = FileResponse;
+
+// File type colors for badges
+const getFileTypeColor = (fileType: string) => {
+  switch (fileType) {
+    case "image":
+      return "bg-blue-500";
+    case "document":
+      return "bg-green-500";
+    case "video":
+      return "bg-purple-500";
+    case "audio":
+      return "bg-orange-500";
+    case "other":
+      return "bg-gray-500";
+    default:
+      return "bg-gray-500";
+  }
+};
+
+// Helper function to format file size
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+// Helper function to format date with moment
+const formatDate = (dateString: string) => {
+  return moment(dateString).format("MMM D, YYYY, h:mm A");
+};
 
 // Custom filter function for multi-column searching
 const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
-  const searchableRowContent =
-    `${row.original.name} ${row.original.email}`.toLowerCase()
-  const searchTerm = (filterValue ?? "").toLowerCase()
-  return searchableRowContent.includes(searchTerm)
-}
+  const searchableRowContent = `${row.original.file_name}`.toLowerCase();
+  const searchTerm = (filterValue ?? "").toLowerCase();
+  return searchableRowContent.includes(searchTerm);
+};
 
-const statusFilterFn: FilterFn<Item> = (
+const fileTypeFilterFn: FilterFn<Item> = (
   row,
   columnId,
   filterValue: string[]
 ) => {
-  if (!filterValue?.length) return true
-  const status = row.getValue(columnId) as string
-  return filterValue.includes(status)
-}
+  if (!filterValue?.length) return true;
+  const fileType = row.getValue(columnId) as string;
+  return filterValue.includes(fileType);
+};
 
 const columns: ColumnDef<Item>[] = [
   {
@@ -145,63 +178,67 @@ const columns: ColumnDef<Item>[] = [
     enableHiding: false,
   },
   {
-    header: "Name",
-    accessorKey: "name",
+    header: "File Name",
+    accessorKey: "file_name",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
+      <div
+        className="font-medium max-w-[200px] truncate"
+        title={row.getValue("file_name")}
+      >
+        {row.getValue("file_name")}
+      </div>
     ),
-    size: 180,
+    size: 200,
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
   {
-    header: "Email",
-    accessorKey: "email",
-    size: 220,
+    header: "Type",
+    accessorKey: "file_type",
+    cell: ({ row }) => {
+      const fileType = row.getValue("file_type") as string;
+      return (
+        <Badge variant="outline" className="gap-1.5 capitalize">
+          <span
+            className={cn("size-1.5 rounded-full", getFileTypeColor(fileType))}
+            aria-hidden="true"
+          />
+          {fileType}
+        </Badge>
+      );
+    },
+    size: 100,
+    filterFn: fileTypeFilterFn,
   },
   {
-    header: "Location",
-    accessorKey: "location",
+    header: "Size",
+    accessorKey: "file_size",
     cell: ({ row }) => (
-      <div>
-        <span className="text-lg leading-none">{row.original.flag}</span>{" "}
-        {row.getValue("location")}
+      <div className="text-sm text-muted-foreground">
+        {formatFileSize(row.getValue("file_size"))}
       </div>
     ),
-    size: 180,
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          row.getValue("status") === "Inactive" &&
-            "bg-muted-foreground/60 text-primary-foreground"
-        )}
-      >
-        {row.getValue("status")}
-      </Badge>
-    ),
     size: 100,
-    filterFn: statusFilterFn,
   },
   {
-    header: "Performance",
-    accessorKey: "performance",
+    header: "Created",
+    accessorKey: "created_at",
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">
+        {formatDate(row.getValue("created_at"))}
+      </div>
+    ),
+    size: 150,
   },
   {
-    header: "Balance",
-    accessorKey: "balance",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("balance"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return formatted
-    },
-    size: 120,
+    header: "Modified",
+    accessorKey: "updated_at",
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">
+        {formatDate(row.getValue("updated_at"))}
+      </div>
+    ),
+    size: 150,
   },
   {
     id: "actions",
@@ -210,48 +247,44 @@ const columns: ColumnDef<Item>[] = [
     size: 60,
     enableHiding: false,
   },
-]
+];
 
-export default function FilesDataTable() {
-  const id = useId()
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+export default function FilesDataTable({
+  data = [],
+  onDeleteFiles,
+}: {
+  data?: Item[];
+  onDeleteFiles?: (fileIds: string[]) => void;
+}) {
+  const id = useId();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  })
-  const inputRef = useRef<HTMLInputElement>(null)
+  });
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: "name",
+      id: "file_name",
       desc: false,
     },
-  ])
-
-  const [data, setData] = useState<Item[]>([])
-  useEffect(() => {
-    async function fetchPosts() {
-      const res = await fetch(
-        "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/users-01_fertyx.json"
-      )
-      const data = await res.json()
-      setData(data)
-    }
-    fetchPosts()
-  }, [])
+  ]);
 
   const handleDeleteRows = () => {
-    const selectedRows = table.getSelectedRowModel().rows
-    const updatedData = data.filter(
-      (item) => !selectedRows.some((row) => row.original.id === item.id)
-    )
-    setData(updatedData)
-    table.resetRowSelection()
-  }
+    const selectedRows = table.getSelectedRowModel().rows;
+    const fileIds = selectedRows.map((row) => row.original.id);
+
+    if (onDeleteFiles) {
+      onDeleteFiles(fileIds);
+    }
+
+    table.resetRowSelection();
+  };
 
   const table = useReactTable({
-    data,
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -269,84 +302,91 @@ export default function FilesDataTable() {
       columnFilters,
       columnVisibility,
     },
-  })
+  });
 
-  // Get unique status values
-  const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn("status")
+  // Get unique file type values
+  const uniqueFileTypeValues = useMemo(() => {
+    if (!data || data.length === 0) return [];
 
-    if (!statusColumn) return []
+    const fileTypeColumn = table.getColumn("file_type");
+    if (!fileTypeColumn) return [];
 
-    const values = Array.from(statusColumn.getFacetedUniqueValues().keys())
+    const values = Array.from(fileTypeColumn.getFacetedUniqueValues().keys());
+    return values.sort();
+  }, [data, table]);
 
-    return values.sort()
-  }, [table.getColumn("status")?.getFacetedUniqueValues()])
+  // Get counts for each file type
+  const fileTypeCounts = useMemo(() => {
+    if (!data || data.length === 0) return new Map();
 
-  // Get counts for each status
-  const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn("status")
-    if (!statusColumn) return new Map()
-    return statusColumn.getFacetedUniqueValues()
-  }, [table.getColumn("status")?.getFacetedUniqueValues()])
+    const fileTypeColumn = table.getColumn("file_type");
+    if (!fileTypeColumn) return new Map();
+    return fileTypeColumn.getFacetedUniqueValues();
+  }, [data, table]);
 
-  const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[]
-    return filterValue ?? []
-  }, [table.getColumn("status")?.getFilterValue()])
+  const selectedFileTypes = useMemo(() => {
+    const filterValue = table
+      .getColumn("file_type")
+      ?.getFilterValue() as string[];
+    return filterValue ?? [];
+  }, [columnFilters]);
 
-  const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[]
-    const newFilterValue = filterValue ? [...filterValue] : []
+  const handleFileTypeChange = (checked: boolean, value: string) => {
+    const filterValue = table
+      .getColumn("file_type")
+      ?.getFilterValue() as string[];
+    const newFilterValue = filterValue ? [...filterValue] : [];
 
     if (checked) {
-      newFilterValue.push(value)
+      newFilterValue.push(value);
     } else {
-      const index = newFilterValue.indexOf(value)
+      const index = newFilterValue.indexOf(value);
       if (index > -1) {
-        newFilterValue.splice(index, 1)
+        newFilterValue.splice(index, 1);
       }
     }
 
     table
-      .getColumn("status")
-      ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined)
-  }
+      .getColumn("file_type")
+      ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
+  };
 
   return (
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          {/* Filter by name or email */}
+          {/* Search files */}
           <div className="relative">
             <Input
               id={`${id}-input`}
               ref={inputRef}
               className={cn(
                 "peer min-w-60 ps-9",
-                Boolean(table.getColumn("name")?.getFilterValue()) && "pe-9"
+                Boolean(table.getColumn("file_name")?.getFilterValue()) &&
+                  "pe-9"
               )}
               value={
-                (table.getColumn("name")?.getFilterValue() ?? "") as string
+                (table.getColumn("file_name")?.getFilterValue() ?? "") as string
               }
               onChange={(e) =>
-                table.getColumn("name")?.setFilterValue(e.target.value)
+                table.getColumn("file_name")?.setFilterValue(e.target.value)
               }
-              placeholder="Filter by name or email..."
+              placeholder="Search files..."
               type="text"
-              aria-label="Filter by name or email"
+              aria-label="Search files"
             />
             <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
               <ListFilterIcon size={16} aria-hidden="true" />
             </div>
-            {Boolean(table.getColumn("name")?.getFilterValue()) && (
+            {Boolean(table.getColumn("file_name")?.getFilterValue()) && (
               <button
                 className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Clear filter"
                 onClick={() => {
-                  table.getColumn("name")?.setFilterValue("")
+                  table.getColumn("file_name")?.setFilterValue("");
                   if (inputRef.current) {
-                    inputRef.current.focus()
+                    inputRef.current.focus();
                   }
                 }}
               >
@@ -354,7 +394,7 @@ export default function FilesDataTable() {
               </button>
             )}
           </div>
-          {/* Filter by status */}
+          {/* Filter by file type */}
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
@@ -363,10 +403,10 @@ export default function FilesDataTable() {
                   size={16}
                   aria-hidden="true"
                 />
-                Status
-                {selectedStatuses.length > 0 && (
+                File Type
+                {selectedFileTypes.length > 0 && (
                   <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                    {selectedStatuses.length}
+                    {selectedFileTypes.length}
                   </span>
                 )}
               </Button>
@@ -374,25 +414,34 @@ export default function FilesDataTable() {
             <PopoverContent className="w-auto min-w-36 p-3" align="start">
               <div className="space-y-3">
                 <div className="text-muted-foreground text-xs font-medium">
-                  Filters
+                  File Types
                 </div>
                 <div className="space-y-3">
-                  {uniqueStatusValues.map((value, i) => (
+                  {uniqueFileTypeValues.map((value, i) => (
                     <div key={value} className="flex items-center gap-2">
                       <Checkbox
                         id={`${id}-${i}`}
-                        checked={selectedStatuses.includes(value)}
+                        checked={selectedFileTypes.includes(value)}
                         onCheckedChange={(checked: boolean) =>
-                          handleStatusChange(checked, value)
+                          handleFileTypeChange(checked, value)
                         }
                       />
                       <Label
                         htmlFor={`${id}-${i}`}
-                        className="flex grow justify-between gap-2 font-normal"
+                        className="flex grow justify-between gap-2 font-normal capitalize"
                       >
-                        {value}{" "}
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "size-2 rounded-full",
+                              getFileTypeColor(value)
+                            )}
+                            aria-hidden="true"
+                          />
+                          {value}
+                        </div>
                         <span className="text-muted-foreground ms-2 text-xs">
-                          {statusCounts.get(value)}
+                          {fileTypeCounts.get(value)}
                         </span>
                       </Label>
                     </div>
@@ -431,7 +480,7 @@ export default function FilesDataTable() {
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -485,111 +534,117 @@ export default function FilesDataTable() {
             </AlertDialog>
           )}
           {/* Add user button */}
-          <Button className="ml-auto" variant="outline">
+          {/* Upload file button */}
+          <Button>
             <PlusIcon
               className="-ms-1 opacity-60"
               size={16}
               aria-hidden="true"
             />
-            Add user
+            Upload File
           </Button>
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-background overflow-hidden rounded-md border">
-        <Table className="table-fixed">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{ width: `${header.getSize()}px` }}
-                      className="h-11"
-                    >
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <div
-                          className={cn(
-                            header.column.getCanSort() &&
-                              "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
-                          onKeyDown={(e) => {
-                            // Enhanced keyboard handling for sorting
-                            if (
+        <ScrollArea className="py-4">
+          <Table className="table-fixed">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: `${header.getSize()}px` }}
+                        className="h-11"
+                      >
+                        {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                          <div
+                            className={cn(
                               header.column.getCanSort() &&
-                              (e.key === "Enter" || e.key === " ")
-                            ) {
-                              e.preventDefault()
-                              header.column.getToggleSortingHandler()?.(e)
+                                "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+                            )}
+                            onClick={header.column.getToggleSortingHandler()}
+                            onKeyDown={(e) => {
+                              // Enhanced keyboard handling for sorting
+                              if (
+                                header.column.getCanSort() &&
+                                (e.key === "Enter" || e.key === " ")
+                              ) {
+                                e.preventDefault();
+                                header.column.getToggleSortingHandler()?.(e);
+                              }
+                            }}
+                            tabIndex={
+                              header.column.getCanSort() ? 0 : undefined
                             }
-                          }}
-                          tabIndex={header.column.getCanSort() ? 0 : undefined}
-                        >
-                          {flexRender(
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {{
+                              asc: (
+                                <ChevronUpIcon
+                                  className="shrink-0 opacity-60"
+                                  size={16}
+                                  aria-hidden="true"
+                                />
+                              ),
+                              desc: (
+                                <ChevronDownIcon
+                                  className="shrink-0 opacity-60"
+                                  size={16}
+                                  aria-hidden="true"
+                                />
+                              ),
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                        ) : (
+                          flexRender(
                             header.column.columnDef.header,
                             header.getContext()
-                          )}
-                          {{
-                            asc: (
-                              <ChevronUpIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ),
-                            desc: (
-                              <ChevronDownIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ),
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </div>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="last:py-0">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                          )
+                        )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="last:py-0">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
       {/* Pagination */}
@@ -602,7 +657,7 @@ export default function FilesDataTable() {
           <Select
             value={table.getState().pagination.pageSize.toString()}
             onValueChange={(value) => {
-              table.setPageSize(Number(value))
+              table.setPageSize(Number(value));
             }}
           >
             <SelectTrigger id={id} className="w-fit whitespace-nowrap">
@@ -706,10 +761,19 @@ export default function FilesDataTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function RowActions({ row }: { row: Row<Item> }) {
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const fileUrl = `${window.location.origin}/files/${row.original.id}`;
+    navigator.clipboard.writeText(fileUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -718,7 +782,7 @@ function RowActions({ row }: { row: Row<Item> }) {
             size="icon"
             variant="ghost"
             className="shadow-none"
-            aria-label="Edit item"
+            aria-label="File actions"
           >
             <EllipsisIcon size={16} aria-hidden="true" />
           </Button>
@@ -727,43 +791,93 @@ function RowActions({ row }: { row: Row<Item> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem>
+            <EditIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <span>Duplicate</span>
-            <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+          <DropdownMenuItem onClick={handleCopyLink}>
+            {linkCopied ? (
+              <CheckIcon
+                size={16}
+                className="text-emerald-500"
+                aria-hidden="true"
+              />
+            ) : (
+              <LinkIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
+            )}
+            <span>Copy link</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Share2Icon
+                  size={16}
+                  className="opacity-60 hover:text-primary focus:text-primary"
+                  aria-hidden="true"
+                />
+                <span>Share</span>
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="max-w-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Share file</AlertDialogTitle>
+              </AlertDialogHeader>
+              <SocialShare
+                fileUrl={`${
+                  typeof window !== "undefined" ? window.location.origin : ""
+                }/files/${row.original.id}`}
+              />
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-primary text-white">Cancel</AlertDialogCancel>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <DropdownMenuItem>
+            <ArchiveIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
             <span>Archive</span>
             <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem>Move to project</DropdownMenuItem>
-                <DropdownMenuItem>Move to folder</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Advanced options</DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>Share</DropdownMenuItem>
-          <DropdownMenuItem>Add to favorites</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
-          <span>Delete</span>
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <TrashIcon size={16} aria-hidden="true" />
+              <span>Delete</span>
+              <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <div className="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
+              <div
+                className="flex size-9 shrink-0 items-center justify-center rounded-full border"
+                aria-hidden="true"
+              >
+                <CircleAlertIcon className="opacity-80" size={16} />
+              </div>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete file?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete "
+                  {row.original.file_name}" and remove it from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

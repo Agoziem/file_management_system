@@ -13,8 +13,32 @@ import { StoragePanelContent } from "./storage-panel";
 import QuickActions from "./quick-action";
 import DataTable from "../custom/datatable";
 import FilesDataTable from "../custom/datatable";
+import { FileResponse } from "@/types/files";
 
 export default function FileManagerDashboard() {
+  // Test with sample data
+  const sampleData: FileResponse[] = [
+    {
+      id: "1",
+      user_id: "123",
+      file_url: "https://example.com/test.pdf",
+      file_name: "test.pdf",
+      file_type: "document",
+      file_size: 1024,
+      created_at: "2024-01-01T00:00:00Z",
+      updated_at: "2024-01-01T00:00:00Z",
+    },
+    {
+      id: "2",
+      user_id: "123",
+      file_url: "https://example.com/test.jpg",
+      file_name: "test.jpg",
+      file_type: "image",
+      file_size: 1024,
+      created_at: "2024-01-01T00:00:00Z",
+      updated_at: "2024-01-01T00:00:00Z",
+    },
+  ];
   return (
     <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
       <div className="p-4 xl:col-span-7 ">
@@ -47,10 +71,7 @@ export default function FileManagerDashboard() {
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base lg:text-lg">Recently modified</h2>
-            <Button
-              variant="ghost"
-              className="text-sm text-purple-600 hover:text-purple-700"
-            >
+            <Button variant="ghost" className="text-sm">
               View all →
             </Button>
           </div>
@@ -79,7 +100,7 @@ export default function FileManagerDashboard() {
             <h2 className="text-base lg:text-lg">All Files</h2>
           </div>
         </div>
-       <FilesDataTable />
+        <FilesDataTable data={sampleData} />
       </div>
 
       <div className="hidden xl:block xl:col-span-3 pt-4">
@@ -88,5 +109,3 @@ export default function FileManagerDashboard() {
     </div>
   );
 }
-
-

@@ -1,4 +1,4 @@
-import FileManagerDashboard from "@/components/dashboard/container";
+import FileManagerDashboard from "@/components/modules/dashboard/container";
 
 export default function Home() {
   return (

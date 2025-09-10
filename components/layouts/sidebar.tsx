@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { sidebarItems } from "../dashboard/dummy-data";
+import { sidebarItems } from "../modules/dashboard/dummy-data";
 
 const AppSidebar = () => {
   const pathname = usePathname();

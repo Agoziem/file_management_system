@@ -547,7 +547,7 @@ export default function FilesDataTable({
       </div>
 
       {/* Table */}
-      <div className="bg-background overflow-hidden rounded-md border">
+      <div className="bg-card overflow-hidden rounded-md border">
         <ScrollArea className="py-4">
           <Table className="table-fixed">
             <TableHeader>
@@ -564,7 +564,7 @@ export default function FilesDataTable({
                           <div
                             className={cn(
                               header.column.getCanSort() &&
-                                "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+                                "flex h-full cursor-pointer items-center justify-between gap-2 select-none dark:text-primary"
                             )}
                             onClick={header.column.getToggleSortingHandler()}
                             onKeyDown={(e) => {
@@ -823,7 +823,7 @@ function RowActions({ row }: { row: Row<Item> }) {
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-md">
               <AlertDialogHeader>
-                <AlertDialogTitle>Share file</AlertDialogTitle>
+                <AlertDialogTitle className="sr-only">Share file</AlertDialogTitle>
               </AlertDialogHeader>
               <SocialShare
                 fileUrl={`${

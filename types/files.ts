@@ -55,26 +55,35 @@ export interface StorageUsageTrend {
   };
 }
 
-export interface FileActivity {
+export type FileActivityActions = 'uploaded' | 'modified' | 'shared' | 'archived' | 'deleted';
+
+export interface FileActivityWithFileDetails {
   id: string;
+  file_id: string;
   file_name: string;
   file_type: 'image' | 'document' | 'video' | 'audio' | 'other';
   file_size: number;
-  updated_at: string; // ISO datetime string
-  created_at: string; // ISO datetime string
-  action: string;
+  action: FileActivityActions;
+  timestamp: string; // ISO datetime string
 }
 
+export interface CreateFileActivity {
+  file_id: string;
+  action: FileActivityActions;
+}
+
+
+export interface FileActivityResponse {
+  id: string;
+  file_id: string;
+  timestamp: string; // ISO datetime string
+  action: FileActivityActions;
+}
+
+
+
 export interface RecentActivityResponse {
-  recent_activity: Array<{
-    id: string;
-    file_name: string;
-    file_type: 'image' | 'document' | 'video' | 'audio' | 'other';
-    file_size: number;
-    updated_at: string;
-    created_at: string;
-    action: string;
-  }>;
+  recent_activity: FileActivityWithFileDetails[];
 }
 
 export interface LargeFile {
@@ -106,15 +115,7 @@ export interface FileAnalyticsDashboard {
     file_counts: number[];
     sizes: number[];
   };
-  recent_activity: Array<{
-    id: string;
-    file_name: string;
-    file_type: 'image' | 'document' | 'video' | 'audio' | 'other';
-    file_size: number;
-    updated_at: string;
-    created_at: string;
-    action: string;
-  }>;
+  recent_activity: FileActivityWithFileDetails[];
   large_files: Array<{
     id: string;
     file_name: string;

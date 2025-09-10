@@ -8,37 +8,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { allFiles, recentFiles, sidebarItems, storageData } from "./dummy-data";
+import { recentFiles, sampleData } from "./dummy-data";
 import { StoragePanelContent } from "./storage-panel";
 import QuickActions from "./quick-action";
-import DataTable from "../custom/datatable";
-import FilesDataTable from "../custom/datatable";
+import DataTable from "../../custom/datatable";
+import FilesDataTable from "../../custom/datatable";
 import { FileResponse } from "@/types/files";
+import Link from "next/link";
 
 export default function FileManagerDashboard() {
-  // Test with sample data
-  const sampleData: FileResponse[] = [
-    {
-      id: "1",
-      user_id: "123",
-      file_url: "https://example.com/test.pdf",
-      file_name: "test.pdf",
-      file_type: "document",
-      file_size: 1024,
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-    {
-      id: "2",
-      user_id: "123",
-      file_url: "https://example.com/test.jpg",
-      file_name: "test.jpg",
-      file_type: "image",
-      file_size: 1024,
-      created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    },
-  ];
+  
   return (
     <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
       <div className="p-4 xl:col-span-7 ">
@@ -71,15 +50,15 @@ export default function FileManagerDashboard() {
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base lg:text-lg">Recently modified</h2>
-            <Button variant="ghost" className="text-sm">
-              View all →
+            <Button variant="ghost" className="text-sm text-primary" asChild>
+              <Link href="/recent">View all →</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recentFiles.map((file, index) => (
               <Card key={index} className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-lg">
                     <file.icon className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">

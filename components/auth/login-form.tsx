@@ -92,7 +92,7 @@ export function LoginForm({
         reset();
         saveToken(response);
         if (!response?.user.profile_completed) {
-          router.push("/profile");
+          router.push("/onboarding");
         } else if (redirect) {
           const redirectUrl = storedValue || redirect;
           setValue(null);

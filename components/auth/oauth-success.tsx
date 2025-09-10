@@ -42,7 +42,7 @@ const OauthSuccess = () => {
           // User is without 2FA
           saveToken(response);
           if (!response?.user?.profile_completed) {
-            router.push("/profile");
+            router.push("/onboarding");
           } else if (persistRedirect) {
             setValue(null);
             if (pathname === persistRedirect) {

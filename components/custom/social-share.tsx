@@ -63,7 +63,7 @@ export default function SocialShare({
 
   return (
     <div className="flex flex-col gap-3 text-center p-2">
-      <div className="text-sm font-medium">Share file</div>
+      <h5 className="">Share file</h5>
       <div className="flex flex-wrap justify-center gap-2">
         <Button size="icon" variant="outline" aria-label="Embed">
           <RiCodeFill size={16} aria-hidden="true" />

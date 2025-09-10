@@ -17,9 +17,18 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import SearchInputComponent from "../custom/navbar/search-input";
 import ThemeSwitcherComponent from "../custom/navbar/theme-switcher";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetHeader } from "../ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+  SheetHeader,
+} from "../ui/sheet";
 import AvatarDropdownComponent from "../custom/navbar/avatar-dropdown";
-import { StoragePanelContent } from "../dashboard/storage-panel";
+import { StoragePanelContent } from "../modules/dashboard/storage-panel";
+import NotificationBtn from "../custom/navbar/notification-btn";
+import Link from "next/link";
 
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
@@ -58,21 +67,23 @@ const Navbar = () => {
           <SheetContent side="right" className="w-80 p-6">
             <SheetHeader className="sr-only">
               <SheetTitle>Storage Panel</SheetTitle>
-              <SheetDescription>Displays storage usage and details.</SheetDescription>
+              <SheetDescription>
+                Displays storage usage and details.
+              </SheetDescription>
             </SheetHeader>
             <StoragePanelContent />
           </SheetContent>
         </Sheet>
 
-        <Button className="bg-primary hover:bg-purple-700 hidden md:inline-flex" size="sm">
-          <Upload className="h-4 w-4 lg:mr-2" />
-          <span>Upload file</span>
+        <Button className="hidden md:inline-flex" size="sm" asChild>
+          <Link href="/dashboard/upload">
+            <Upload className="h-4 w-4 lg:mr-2" />
+            <span>Upload file</span>
+          </Link>
         </Button>
 
         <ThemeSwitcherComponent />
-        <Button variant="ghost" size="icon">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationBtn />
         <AvatarDropdownComponent />
       </div>
     </header>

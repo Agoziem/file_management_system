@@ -2,7 +2,6 @@
 import { Card } from "@/components/ui/card";
 import { FileText, ImageIcon, Upload, User, VideoIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 const fetchQuickActions = [
     {
@@ -10,7 +9,7 @@ const fetchQuickActions = [
       title: "Upload Images",
       icon: <ImageIcon className="h-6 w-6" />,
       href: "/images/upload",
-      iconBg: "bg-secondary",
+      iconBg: "bg-secondary dark:bg-muted",
       iconColor: "text-primary",
     },
     {
@@ -18,7 +17,7 @@ const fetchQuickActions = [
       title: "Manage Users",
       icon: <User className="h-6 w-6" />,
       href: "/admin/user-management",
-      iconBg: "bg-secondary text-primary",
+      iconBg: "bg-secondary dark:bg-muted text-primary",
       iconColor: "text-primary",
     },
     {
@@ -26,7 +25,7 @@ const fetchQuickActions = [
       title: "Upload Documents",
       icon: <FileText className="h-6 w-6" />,
       href: "/documents/upload",
-      iconBg: "bg-secondary text-primary",
+      iconBg: "bg-secondary dark:bg-muted text-primary",
       iconColor: "text-primary",
     },
     {
@@ -34,7 +33,7 @@ const fetchQuickActions = [
       title: "Upload Videos",
       icon: <VideoIcon className="h-6 w-6" />,
       href: "/videos/upload",
-      iconBg: "bg-secondary text-primary",
+      iconBg: "bg-secondary dark:bg-muted text-primary",
       iconColor: "text-primary",
     },
   ];

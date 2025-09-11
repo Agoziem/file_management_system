@@ -1,18 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Sun,
-  Bell,
-  User,
-  CreditCard,
-  HelpCircle,
-  LogOut,
-  Menu,
-  Upload,
-  BarChart3,
-} from "lucide-react";
+import { Menu, BarChart3, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import SearchInputComponent from "../custom/navbar/search-input";
@@ -29,6 +18,7 @@ import AvatarDropdownComponent from "../custom/navbar/avatar-dropdown";
 import { StoragePanelContent } from "../modules/dashboard/storage-panel";
 import NotificationBtn from "../custom/navbar/notification-btn";
 import Link from "next/link";
+import UploadDropdown from "../custom/upload-dropdown";
 
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
@@ -75,13 +65,14 @@ const Navbar = () => {
           </SheetContent>
         </Sheet>
 
-        <Button className="hidden md:inline-flex" size="sm" asChild>
-          <Link href="/dashboard/upload">
-            <Upload className="h-4 w-4 lg:mr-2" />
-            <span>Upload file</span>
-          </Link>
-        </Button>
-
+        <UploadDropdown
+          component={
+            <Button className="hidden md:inline-flex" size="sm">
+              <Upload className="h-4 w-4" />
+              <span>Upload file</span>
+            </Button>
+          }
+        />
         <ThemeSwitcherComponent />
         <NotificationBtn />
         <AvatarDropdownComponent />

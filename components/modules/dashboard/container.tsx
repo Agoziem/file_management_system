@@ -1,11 +1,5 @@
 "use client";
-import {
-  Filter,
-  List,
-  MoreHorizontal,
-  ChevronDown,
-  Upload,
-} from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { recentFiles, sampleData } from "./dummy-data";
@@ -15,9 +9,9 @@ import DataTable from "../../custom/datatable";
 import FilesDataTable from "../../custom/datatable";
 import { FileResponse } from "@/types/files";
 import Link from "next/link";
+import UploadDropdown from "@/components/custom/upload-dropdown";
 
 export default function FileManagerDashboard() {
-  
   return (
     <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
       <div className="p-4 xl:col-span-7 ">
@@ -32,10 +26,14 @@ export default function FileManagerDashboard() {
             </p>
           </div>
 
-          <Button className="bg-primary md:hidden" size="sm">
-            <Upload className="h-4 w-4 lg:mr-2" />
-            <span className="">Upload file</span>
-          </Button>
+          <UploadDropdown
+            component={
+              <Button className="bg-primary md:hidden" size="sm">
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="">Upload file</span>
+              </Button>
+            }
+          />
         </div>
 
         {/* Quick actions */}

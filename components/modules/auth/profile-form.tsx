@@ -41,7 +41,7 @@ import AvatarUploader from "@/components/custom/avataruploader1";
 import { PhoneInput } from "@/components/custom/phone-input";
 import LocationSelector from "@/components/custom/location-select";
 import { ButtonSpinner } from "@/components/custom/spinner";
-import { Label } from "../ui/label";
+import { Label } from "../../ui/label";
 
 interface ProfileFormProps {
   className?: string;
@@ -120,7 +120,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
       <Card className="border-0 shadow-none">
         <CardContent className="px-8 pb-8">
           <div className="mb-6 px-3">
-            <h5 className="text-xl font-bold text-primary">
+            <h5 className="text-xl font-bold text-primary dark:text-white">
               Complete Your Profile
             </h5>
             <div className="text-sm font-normal text-muted-foreground">

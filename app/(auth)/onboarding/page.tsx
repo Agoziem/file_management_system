@@ -1,4 +1,4 @@
-import ProfileForm from "@/components/auth/profile-form";
+import ProfileForm from "@/components/modules/auth/profile-form";
 import React from "react";
 
 const ProfilePage = () => {

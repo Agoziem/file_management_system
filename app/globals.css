@@ -204,3 +204,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Remove default auto-fill color */
+.input-autofill:-webkit-autofill {
+  background-color: none !important;
+  color: inherit !important;
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  border-radius: 8px;
+}

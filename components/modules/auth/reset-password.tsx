@@ -75,7 +75,7 @@ export function ResetPasswordForm({
         
         <CardContent>
           <div className="mb-6 px-3">
-            <h5 className="text-xl font-bold text-primary">Reset Password</h5>
+            <h5 className="text-xl font-bold text-primary dark:text-white">Reset Password</h5>
             <div className="text-sm font-normal text-muted-foreground">
               Please enter your new password to reset your account.
             </div>

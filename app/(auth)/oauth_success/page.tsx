@@ -1,4 +1,4 @@
-import OauthSuccess from "@/components/auth/oauth-success";
+import OauthSuccess from "@/components/modules/auth/oauth-success";
 import React from "react";
 
 const OauthSuccessPage = () => {

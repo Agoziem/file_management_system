@@ -34,7 +34,7 @@ import { LoginSchema, LoginSchemaType } from "@/schemas/auth";
 import { useLogin } from "@/data/auth";
 import { API_URL } from "@/data/constants";
 import { ButtonSpinner } from "@/components/custom/spinner";
-import { PasswordInput } from "../custom/password-input";
+import { PasswordInput } from "../../custom/password-input";
 
 export function LoginForm({
   className,
@@ -115,7 +115,7 @@ export function LoginForm({
       <Card className="border-0 shadow-none">
         <CardContent>
           <div className="mb-6 px-3">
-            <h5 className="text-xl font-bold text-primary">
+            <h5 className="text-xl font-bold text-primary dark:text-white">
               Login to your account
             </h5>
             <div className="text-sm font-normal text-muted-foreground">

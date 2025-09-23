@@ -30,7 +30,7 @@ import { useSignup } from "@/data/auth";
 import { API_URL } from "@/data/constants";
 import { ButtonSpinner } from "@/components/custom/spinner";
 import Link from "next/link";
-import PasswordInputtwo from "../custom/password-input-2";
+import PasswordInputtwo from "../../custom/password-input-2";
 
 export function RegisterForm({
   className,
@@ -74,7 +74,7 @@ export function RegisterForm({
       <Card className="border-0 shadow-none">
         <CardContent>
           <div className="mb-6 px-3">
-            <h5 className="text-xl font-bold text-primary">Create Account</h5>
+            <h5 className="text-xl font-bold text-primary dark:text-white">Create Account</h5>
             <div className="text-sm font-normal text-muted-foreground">
               Please enter your details to create an account.
             </div>

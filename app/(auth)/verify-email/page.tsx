@@ -1,4 +1,4 @@
-import { EmailVerification } from "@/components/auth/verify-email";
+import { EmailVerification } from "@/components/modules/auth/verify-email";
 import React from "react";
 
 const VerificationPage = () => {

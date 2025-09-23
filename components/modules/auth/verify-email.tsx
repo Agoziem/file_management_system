@@ -1,7 +1,4 @@
 "use client";
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,75 +8,71 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { saveToken } from "@/utils/auth";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useLocalStorage from "@/hooks/useLocalStorage";
-import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { saveToken } from "@/utils/auth";
 import Image from "next/image";
 import {
-  useResend2FACode,
-  useVerify2FACode,
-} from "@/data/auth";
-import { verifyCodeSchema, verifyCodeSchemaType } from "@/schemas/auth";
-import { toast } from "sonner";
+  verifyCodeSchema,
+  verifyCodeSchemaType,
+  verifyTokenSchema,
+  verifyTokenSchemaType,
+} from "@/schemas/auth";
+import { useResendVerification, useVerifyAccount } from "@/data/auth";
 import { ButtonSpinner } from "@/components/custom/spinner";
-import OTPInputComponent from "../ui/input-otp-spaced";
+import OTPInputComponent from "../../ui/input-otp-spaced";
 
-export function Verify2FAForm({
+export function EmailVerification({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [resendCode, setResendCode] = useState(false);
+  const [resendToken, setResendToken] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const { mutateAsync: verify2FA } = useVerify2FACode();
-  const { mutateAsync: resend2FA } = useResend2FACode();
+  const { mutateAsync: verifyEmailToken } = useVerifyAccount();
+  const { mutateAsync: resendVerificationEmail } = useResendVerification();
   const { storedValue: persistRedirect, setValue } = useLocalStorage<
     string | null
-  >("persistRedirect", null);
+  >("persistRedirect", null); // persistRedirect is the path to redirect after verification
   const { storedValue: persistEmail, removeValue } = useLocalStorage<
     string | null
-  >("persistEmail", null);
+  >("persistEmail", null); // persistEmail is the email address used to resend the code
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // form validation
-  const form = useForm<verifyCodeSchemaType>({
-    resolver: zodResolver(verifyCodeSchema),
+  const form = useForm<verifyTokenSchemaType>({
+    resolver: zodResolver(verifyTokenSchema),
     defaultValues: {
-      code: "",
+      token: "",
     },
   });
 
-  const { reset, watch } = form;
-
-  // Watch for changes in the code field to reset auto-submit state
-  const codeValue = watch("code");
-  useEffect(() => {
-    if (codeValue.length < 6) {
-      setAutoSubmitted(false);
-    }
-  }, [codeValue]);
+  const { reset } = form;
 
   // -----------------------------------------------------
   // onSubmit function to handle form submission
   // -----------------------------------------------------
-  const onSubmit = async (values: verifyCodeSchemaType) => {
+  const onSubmit = async (values: verifyTokenSchemaType) => {
     setVerifying(true);
     try {
-      const response = await verify2FA(values.code);
-      toast.success(response?.message || "Login successful!");
-      reset();
+      console.log(`Verifying email token...: ${values.token}`);
+      const response = await verifyEmailToken(values);
+      toast.success(response?.message || "Email verified successfully!");
       saveToken(response);
+      reset();
       if (!response?.user?.profile_completed) {
         router.push("/onboarding");
       } else if (persistRedirect) {
@@ -94,11 +87,9 @@ export function Verify2FAForm({
         router.push("/");
       }
     } catch (error: any) {
-      const message =
-        error.response?.data?.detail?.message || "Failed to verify 2FA code";
-      toast.error(message);
-      // Reset auto-submit state on error so user can try again
-      setAutoSubmitted(false);
+      toast.error(
+        error.response?.data?.detail?.message || "Invalid verification code!"
+      );
     } finally {
       setVerifying(false);
     }
@@ -107,56 +98,59 @@ export function Verify2FAForm({
   // -----------------------------------------------------
   // handleResendCode function to resend verification code
   // -----------------------------------------------------
-  const handleResendCode = async () => {
-    setResendCode(true);
+  const handleResendToken = async () => {
+    setResendToken(true);
     if (!persistEmail) {
       toast.error("Oops! Email not found!");
-      setResendCode(false);
+      setResendToken(false);
       return;
     }
     try {
-      const response = await resend2FA({ email: persistEmail });
-      toast.success(response?.message || "Code resent successfully!");
+      const response = await resendVerificationEmail({ email: persistEmail });
+      toast.success(response?.message || "Token resent successfully!");
     } catch (error: any) {
       toast.error(
         error.response?.data?.detail?.message || "Failed to resend code!"
       );
     } finally {
-      setResendCode(false);
+      setResendToken(false);
     }
   };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-0 shadow-none">
-      
         <CardContent>
           <div className="mb-6 px-3">
-            <h5 className="text-xl font-bold text-primary">2FA Verification</h5>
+            <h5 className="text-xl font-bold text-primary dark:text-white">Email Verification</h5>
             <div className="text-sm font-normal text-muted-foreground">
-              Please enter the 2FA code sent to your email address.
+              Please enter the verification code sent to your email address.
             </div>
           </div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8 px-3"
+              className="space-y-6 px-3"
             >
               <FormField
                 control={form.control}
-                name="code"
+                name="token"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-center">
-                      Enter your 2FA verification code
+                    <FormLabel className="text-center block">
+                      Verification Token
                     </FormLabel>
                     <FormControl>
-                      <OTPInputComponent 
+                      <OTPInputComponent
                         value={field.value}
                         onChange={(value) => {
                           field.onChange(value);
                           // Auto-submit when all digits are entered
-                          if (value.length === 6 && !verifying && !autoSubmitted) {
+                          if (
+                            value.length === 6 &&
+                            !verifying &&
+                            !autoSubmitted
+                          ) {
                             setAutoSubmitted(true);
                             form.handleSubmit(onSubmit)();
                           }
@@ -170,27 +164,23 @@ export function Verify2FAForm({
                 )}
               />
 
-              <Button 
-                type="submit" 
-                className="w-full " 
-                disabled={verifying}
-              >
+              <Button type="submit" className="w-full" disabled={verifying}>
                 {verifying ? (
-                  <ButtonSpinner label="Verifying..." />
+                  <ButtonSpinner label="verifying..." />
                 ) : (
                   "Verify Code"
                 )}
               </Button>
 
-              <div className="text-center text-sm text-white/70">
-                Didn&apos;t receive the code?{" "}
-                {resendCode ? (
-                  <ButtonSpinner label="Resending..." />
+              <div className="text-center text-sm">
+                you didn&apos;t receive the code?{" "}
+                {resendToken ? (
+                  <ButtonSpinner label="resending..." />
                 ) : (
                   <span
                     role="button"
-                    className="text-white hover:text-white/90 cursor-pointer hover:underline font-medium transition-colors duration-200"
-                    onClick={handleResendCode}
+                    className="text-primary cursor-pointer hover:underline"
+                    onClick={handleResendToken}
                   >
                     Resend Code
                   </span>

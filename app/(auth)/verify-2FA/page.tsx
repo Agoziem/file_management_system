@@ -1,4 +1,4 @@
-import { Verify2FAForm } from "@/components/auth/verify-2FA";
+import { Verify2FAForm } from "@/components/modules/auth/verify-2FA";
 import React from "react";
 
 const Verify2FACodePage = () => {

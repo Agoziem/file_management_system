@@ -1,4 +1,4 @@
-import { AuthCarousel } from "@/components/auth/auth-carousel";
+import { AuthCarousel } from "@/components/modules/auth/auth-carousel";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";

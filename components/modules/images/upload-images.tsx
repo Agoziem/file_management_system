@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import ImagesUploader from "./images-uploader";
+import Backbutton from "@/components/custom/backbutton";
 
 const UploadImages = () => {
   const [uploading, setUploading] = React.useState(false);
@@ -8,9 +9,10 @@ const UploadImages = () => {
     console.log("Uploaded files:", files);
   };
   return (
-    <div className="max-w-3xl mx-auto mt-6 my-10">
+    <div className="max-w-3xl mx-auto mt-3 my-10">
+      <Backbutton className="mb-3" />
       <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">Upload Images</h2>
+        <h2 className="text-2xl font-bold tracking-tight dark:text-white">Upload Images</h2>
         <p className="text-muted-foreground">
           Upload and manage your images easily
         </p>

@@ -16,6 +16,7 @@ import {
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/custom/spinner";
+import { getFileIcon } from "./fileicon";
 
 // Create some dummy initial files
 const initialFiles = [
@@ -42,40 +43,7 @@ const initialFiles = [
   },
 ];
 
-const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
-  const fileType = file.file instanceof File ? file.file.type : file.file.type;
-  const fileName = file.file instanceof File ? file.file.name : file.file.name;
 
-  if (
-    fileType.includes("pdf") ||
-    fileName.endsWith(".pdf") ||
-    fileType.includes("word") ||
-    fileName.endsWith(".doc") ||
-    fileName.endsWith(".docx")
-  ) {
-    return <FileTextIcon className="size-4 opacity-60" />;
-  } else if (
-    fileType.includes("zip") ||
-    fileType.includes("archive") ||
-    fileName.endsWith(".zip") ||
-    fileName.endsWith(".rar")
-  ) {
-    return <FileArchiveIcon className="size-4 opacity-60" />;
-  } else if (
-    fileType.includes("excel") ||
-    fileName.endsWith(".xls") ||
-    fileName.endsWith(".xlsx")
-  ) {
-    return <FileSpreadsheetIcon className="size-4 opacity-60" />;
-  } else if (fileType.includes("video/")) {
-    return <VideoIcon className="size-4 opacity-60" />;
-  } else if (fileType.includes("audio/")) {
-    return <HeadphonesIcon className="size-4 opacity-60" />;
-  } else if (fileType.startsWith("image/")) {
-    return <ImageIcon className="size-4 opacity-60" />;
-  }
-  return <FileIcon className="size-4 opacity-60" />;
-};
 
 export default function DocumentsUploader({
   onUpload,

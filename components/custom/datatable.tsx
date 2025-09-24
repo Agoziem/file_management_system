@@ -101,6 +101,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { FileResponse } from "@/types/files";
 import SocialShare from "@/components/custom/social-share";
 import moment from "moment";
+import Link from "next/link";
 
 type Item = FileResponse;
 
@@ -143,6 +144,7 @@ const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
   return searchableRowContent.includes(searchTerm);
 };
 
+// Custom filter function for file type filtering
 const fileTypeFilterFn: FilterFn<Item> = (
   row,
   columnId,
@@ -153,6 +155,7 @@ const fileTypeFilterFn: FilterFn<Item> = (
   return filterValue.includes(fileType);
 };
 
+// Column definitions
 const columns: ColumnDef<Item>[] = [
   {
     id: "select",
@@ -198,7 +201,10 @@ const columns: ColumnDef<Item>[] = [
     cell: ({ row }) => {
       const fileType = row.getValue("file_type") as string;
       return (
-        <Badge variant="outline" className="gap-1.5 capitalize">
+        <Badge
+          variant="outline"
+          className="gap-1.5 capitalize dark:border-input"
+        >
           <span
             className={cn("size-1.5 rounded-full", getFileTypeColor(fileType))}
             aria-hidden="true"
@@ -249,11 +255,18 @@ const columns: ColumnDef<Item>[] = [
   },
 ];
 
+// ====================================================
+// The Main Table Component
+// ====================================================
 export default function FilesDataTable({
   data = [],
+  uploadlink,
+  buttonText,
   onDeleteFiles,
 }: {
   data?: Item[];
+  uploadlink?: string;
+  buttonText?: string;
   onDeleteFiles?: (fileIds: string[]) => void;
 }) {
   const id = useId();
@@ -264,7 +277,6 @@ export default function FilesDataTable({
     pageSize: 10,
   });
   const inputRef = useRef<HTMLInputElement>(null);
-
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "file_name",
@@ -272,6 +284,7 @@ export default function FilesDataTable({
     },
   ]);
 
+  // Handle delete rows
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;
     const fileIds = selectedRows.map((row) => row.original.id);
@@ -283,6 +296,7 @@ export default function FilesDataTable({
     table.resetRowSelection();
   };
 
+  // Initialize the table
   const table = useReactTable({
     data: data || [],
     columns,
@@ -324,6 +338,7 @@ export default function FilesDataTable({
     return fileTypeColumn.getFacetedUniqueValues();
   }, [data, table]);
 
+  // Get selected file types
   const selectedFileTypes = useMemo(() => {
     const filterValue = table
       .getColumn("file_type")
@@ -331,6 +346,7 @@ export default function FilesDataTable({
     return filterValue ?? [];
   }, [columnFilters]);
 
+  // Handle file type filter change
   const handleFileTypeChange = (checked: boolean, value: string) => {
     const filterValue = table
       .getColumn("file_type")
@@ -533,15 +549,16 @@ export default function FilesDataTable({
               </AlertDialogContent>
             </AlertDialog>
           )}
-          {/* Add user button */}
           {/* Upload file button */}
-          <Button>
-            <PlusIcon
-              className="-ms-1 opacity-60"
-              size={16}
-              aria-hidden="true"
-            />
-            Upload File
+          <Button asChild>
+            <Link href={uploadlink || "/upload"}>
+              <PlusIcon
+                className="-ms-1 opacity-60"
+                size={16}
+                aria-hidden="true"
+              />
+              {buttonText || "Upload File"}
+            </Link>
           </Button>
         </div>
       </div>
@@ -791,7 +808,11 @@ function RowActions({ row }: { row: Row<Item> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <EditIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
+            <EditIcon
+              size={16}
+              className="opacity-60 hover:text-primary focus:text-primary"
+              aria-hidden="true"
+            />
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -803,7 +824,11 @@ function RowActions({ row }: { row: Row<Item> }) {
                 aria-hidden="true"
               />
             ) : (
-              <LinkIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
+              <LinkIcon
+                size={16}
+                className="opacity-60 hover:text-primary focus:text-primary"
+                aria-hidden="true"
+              />
             )}
             <span>Copy link</span>
           </DropdownMenuItem>
@@ -823,7 +848,9 @@ function RowActions({ row }: { row: Row<Item> }) {
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-md">
               <AlertDialogHeader>
-                <AlertDialogTitle className="sr-only">Share file</AlertDialogTitle>
+                <AlertDialogTitle className="sr-only">
+                  Share file
+                </AlertDialogTitle>
               </AlertDialogHeader>
               <SocialShare
                 fileUrl={`${
@@ -831,12 +858,18 @@ function RowActions({ row }: { row: Row<Item> }) {
                 }/files/${row.original.id}`}
               />
               <AlertDialogFooter>
-                <AlertDialogCancel className="bg-primary text-white">Cancel</AlertDialogCancel>
+                <AlertDialogCancel className="bg-primary text-white">
+                  Cancel
+                </AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
           <DropdownMenuItem>
-            <ArchiveIcon size={16} className="opacity-60 hover:text-primary focus:text-primary" aria-hidden="true" />
+            <ArchiveIcon
+              size={16}
+              className="opacity-60 hover:text-primary focus:text-primary"
+              aria-hidden="true"
+            />
             <span>Archive</span>
             <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
           </DropdownMenuItem>

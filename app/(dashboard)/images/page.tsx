@@ -1,4 +1,4 @@
-import ImagesContainer from '@/components/modules/documents/container'
+import ImagesContainer from '@/components/modules/images/container'
 import React from 'react'
 
 const ImagesPage = () => {

@@ -15,6 +15,7 @@ import {
 } from "@/schemas/auth";
 import { z } from "zod";
 import { BaseResponse, CreateUserResponse, LoginResponse, LoginSuccessResponse, LogoutResponse, OAuthTokenResponse, PasswordResetResponse, TokenResponse, VerificationResponse } from "@/types/auth";
+import { removeToken } from "@/utils/auth";
 
 
 
@@ -107,6 +108,7 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       // Clear all cached data on logout
+      removeToken();
       queryClient.clear();
     }
   });

@@ -13,3 +13,24 @@ export const ButtonSpinner = ({ label = "Processing...", className = "" }: Butto
     </span>
   );
 };
+
+export const CardSpinner = () => {
+  return (
+    <div className="mt-14 flex items-center justify-center">
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <CgSpinner className="animate-spin text-3xl" />
+      </div>
+    </div>
+  );
+};
+
+export const UiSpinner = () => {
+  return (
+    <div className="mt-6 flex items-center justify-center">
+      <div className=" p-4">
+        <CgSpinner className="animate-spin text-3xl" />
+      </div>
+    </div>
+  );
+};
+

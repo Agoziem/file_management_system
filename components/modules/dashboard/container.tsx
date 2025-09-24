@@ -10,16 +10,18 @@ import FilesDataTable from "../../custom/datatable";
 import { FileResponse } from "@/types/files";
 import Link from "next/link";
 import UploadDropdown from "@/components/custom/upload-dropdown";
+import { useGetCurrentUserProfile } from "@/data/user";
 
 export default function FileManagerDashboard() {
+  const { data:userProfile} = useGetCurrentUserProfile();
   return (
     <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
       <div className="p-4 xl:col-span-7 ">
         {/* All files header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="mb-1 text-xl font-semibold lg:text-2xl">
-              Welcome, Chiagoziem
+            <h1 className="mb-1 text-xl font-semibold lg:text-2xl dark:text-white">
+              Welcome, {userProfile?.first_name || 'User'}
             </h1>
             <p className="text-muted-foreground text-sm lg:text-base">
               All of your files are displayed here

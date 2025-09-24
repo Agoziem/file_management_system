@@ -1,8 +1,9 @@
+import { UploadVideos } from '@/components/modules/videos/upload-videos'
 import React from 'react'
 
 const UploadedVideosPage = () => {
   return (
-    <div>UploadedVideosPage</div>
+    <UploadVideos />
   )
 }
 

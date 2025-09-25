@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckIcon, ImagePlusIcon, XIcon } from "lucide-react";
-
-import { useCharacterLimit } from "@/hooks/use-character-limit";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,36 +40,18 @@ import {
 } from "@/components/ui/select";
 import LocationSelector from "@/components/custom/location-select";
 import { PhoneInput } from "@/components/custom/phone-input";
-import AvatarUploader from "@/components/custom/avataruploader1";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-// Pretend we have initial image files
-const initialBgImage = [
-  {
-    name: "profile-bg.jpg",
-    size: 1528737,
-    type: "image/jpeg",
-    url: "/profile-bg.jpg",
-    id: "profile-bg-123456789",
-  },
-];
-
-const initialAvatarImage = [
-  {
-    name: "avatar-72-01.jpg",
-    size: 1528737,
-    type: "image/jpeg",
-    url: "/avatar-72-01.jpg",
-    id: "avatar-123456789",
-  },
-];
+import ImageUploader from "@/components/custom/imageuploader";
+import { useUploadFile } from "@/data/files";
+import { toast } from "sonner";
 
 export default function ProfileEditModal() {
-  const id = useId();
   const { data: userProfile } = useGetCurrentUserProfile();
-  const { mutateAsync: updateProfile, isLoading } = useUpdateUser();
+  const { mutateAsync: updateProfile } = useUpdateUser();
   const [updating, setUpdating] = useState(false);
+  const { mutateAsync: uploadFile } = useUploadFile();
+  const [open, setOpen] = useState(false);
 
   // Use the imported Zod schema and type
   const form = useForm<UserUpdateType>({
@@ -126,11 +106,32 @@ export default function ProfileEditModal() {
 
   // Save handler
   const onSubmit = async (data: UserUpdateType) => {
-    await updateProfile(data);
+    setUpdating(true);
+    try {
+      if (data.avatar && data.avatar instanceof File) {
+        // Upload the new avatar file
+        const formData = new FormData();
+        formData.append("file", data.avatar);
+        formData.append("key", data.avatar.name);
+        formData.append("replace", "true");
+        const uploadResponse = await uploadFile(formData);
+        data.avatar = uploadResponse.url;
+      } else if (data.avatar === null) {
+        data.avatar = "";
+      }
+      await updateProfile(data);
+      setUpdating(false);
+      toast.success("Profile updated successfully!");
+      reset(data);
+      setOpen(false);
+    } catch (error) {
+      setUpdating(false);
+      toast.error("Failed to update profile");
+    }
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <HiOutlinePencilAlt /> Edit profile
@@ -165,16 +166,10 @@ export default function ProfileEditModal() {
                         <div className="flex flex-col items-center">
                           <FormLabel className="mb-2">Profile Photo</FormLabel>
                           <FormControl>
-                            <AvatarUploader
-                              label="upload your profile photo"
-                              onImageChange={(imageUrl) => {
-                                field.onChange(imageUrl);
-                              }}
-                              defaultImage={
-                                typeof field.value === "string"
-                                  ? field.value
-                                  : undefined
-                              }
+                            <ImageUploader
+                              name={field.name}
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
                             />
                           </FormControl>
                           <FormMessage />
@@ -350,95 +345,4 @@ export default function ProfileEditModal() {
   );
 }
 
-function ProfileBg() {
-  const [{ files }, { removeFile, openFileDialog, getInputProps }] =
-    useFileUpload({
-      accept: "image/*",
-      initialFiles: initialBgImage,
-    });
 
-  const currentImage = files[0]?.preview || null;
-
-  return (
-    <div className="h-32">
-      <div className="bg-muted relative flex size-full items-center justify-center overflow-hidden">
-        {currentImage && (
-          <img
-            className="size-full object-cover"
-            src={currentImage}
-            alt={
-              files[0]?.preview
-                ? "Preview of uploaded image"
-                : "Default profile background"
-            }
-            width={512}
-            height={96}
-          />
-        )}
-        <div className="absolute inset-0 flex items-center justify-center gap-2">
-          <button
-            type="button"
-            className="focus-visible:border-ring focus-visible:ring-ring/50 z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-[color,box-shadow] outline-none hover:bg-black/80 focus-visible:ring-[3px]"
-            onClick={openFileDialog}
-            aria-label={currentImage ? "Change image" : "Upload image"}
-          >
-            <ImagePlusIcon size={16} aria-hidden="true" />
-          </button>
-          {currentImage && (
-            <button
-              type="button"
-              className="focus-visible:border-ring focus-visible:ring-ring/50 z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-[color,box-shadow] outline-none hover:bg-black/80 focus-visible:ring-[3px]"
-              onClick={() => removeFile(files[0]?.id)}
-              aria-label="Remove image"
-            >
-              <XIcon size={16} aria-hidden="true" />
-            </button>
-          )}
-        </div>
-      </div>
-      <input
-        {...getInputProps()}
-        className="sr-only"
-        aria-label="Upload image file"
-      />
-    </div>
-  );
-}
-
-function Avatar() {
-  const [{ files }, { openFileDialog, getInputProps }] = useFileUpload({
-    accept: "image/*",
-    initialFiles: initialAvatarImage,
-  });
-
-  const currentImage = files[0]?.preview || null;
-
-  return (
-    <div className="-mt-10 px-6">
-      <div className="border-background bg-muted relative flex size-20 items-center justify-center overflow-hidden rounded-full border-4 shadow-xs shadow-black/10">
-        {currentImage && (
-          <img
-            src={currentImage}
-            className="size-full object-cover"
-            width={80}
-            height={80}
-            alt="Profile image"
-          />
-        )}
-        <button
-          type="button"
-          className="focus-visible:border-ring focus-visible:ring-ring/50 absolute flex size-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-[color,box-shadow] outline-none hover:bg-black/80 focus-visible:ring-[3px]"
-          onClick={openFileDialog}
-          aria-label="Change profile picture"
-        >
-          <ImagePlusIcon size={16} aria-hidden="true" />
-        </button>
-        <input
-          {...getInputProps()}
-          className="sr-only"
-          aria-label="Upload profile picture"
-        />
-      </div>
-    </div>
-  );
-}

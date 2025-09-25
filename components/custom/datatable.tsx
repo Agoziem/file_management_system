@@ -32,12 +32,14 @@ import {
   CopyIcon,
   EditIcon,
   EllipsisIcon,
+  FileIcon,
   FilterIcon,
   LinkIcon,
   ListFilterIcon,
   PlusIcon,
   Share2Icon,
   TrashIcon,
+  Upload,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -55,6 +57,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "../ui/skeleton";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -102,6 +106,7 @@ import { FileResponse } from "@/types/files";
 import SocialShare from "@/components/custom/social-share";
 import moment from "moment";
 import Link from "next/link";
+import UploadDropdown from "./upload-dropdown";
 
 type Item = FileResponse;
 
@@ -263,11 +268,13 @@ export default function FilesDataTable({
   uploadlink,
   buttonText,
   onDeleteFiles,
+  loading,
 }: {
   data?: Item[];
   uploadlink?: string;
   buttonText?: string;
   onDeleteFiles?: (fileIds: string[]) => void;
+  loading?: boolean;
 }) {
   const id = useId();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -550,116 +557,152 @@ export default function FilesDataTable({
             </AlertDialog>
           )}
           {/* Upload file button */}
-          <Button asChild>
-            <Link href={uploadlink || "/upload"}>
-              <PlusIcon
-                className="-ms-1 opacity-60"
-                size={16}
-                aria-hidden="true"
-              />
-              {buttonText || "Upload File"}
-            </Link>
-          </Button>
+          {uploadlink ? (
+            <Button asChild>
+              <Link href={uploadlink || "/upload"}>
+                <PlusIcon
+                  className="-ms-1 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                {buttonText || "Upload File"}
+              </Link>
+            </Button>
+          ) : (
+            <UploadDropdown
+              component={
+                <Button className="bg-primary" size="sm">
+                  <Upload className="h-4 w-4" />
+                  <span className="">Upload file</span>
+                </Button>
+              }
+            />
+          )}
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-card overflow-hidden rounded-md border">
         <ScrollArea className="py-4">
-          <Table className="table-fixed">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{ width: `${header.getSize()}px` }}
-                        className="h-11"
-                      >
-                        {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                          <div
-                            className={cn(
-                              header.column.getCanSort() &&
-                                "flex h-full cursor-pointer items-center justify-between gap-2 select-none dark:text-primary"
-                            )}
-                            onClick={header.column.getToggleSortingHandler()}
-                            onKeyDown={(e) => {
-                              // Enhanced keyboard handling for sorting
-                              if (
+          {loading ? (
+            <div className="w-full px-4 py-8">
+              {/* Table header skeleton */}
+              <div className="flex mb-2">
+                {[...Array(columns.length)].map((_, idx) => (
+                  <Skeleton key={idx} className="h-6 flex-1 mx-1 bg-muted" />
+                ))}
+              </div>
+              {/* Table rows skeleton */}
+              {[...Array(6)].map((_, rowIdx) => (
+                <div key={rowIdx} className="flex mb-2">
+                  {[...Array(columns.length)].map((_, colIdx) => (
+                    <Skeleton key={colIdx} className="h-6 flex-1 mx-1 bg-muted" />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table className="table-fixed">
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="hover:bg-transparent"
+                  >
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          style={{ width: `${header.getSize()}px` }}
+                          className="h-11"
+                        >
+                          {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                            <div
+                              className={cn(
                                 header.column.getCanSort() &&
-                                (e.key === "Enter" || e.key === " ")
-                              ) {
-                                e.preventDefault();
-                                header.column.getToggleSortingHandler()?.(e);
+                                  "flex h-full cursor-pointer items-center justify-between gap-2 select-none dark:text-primary"
+                              )}
+                              onClick={header.column.getToggleSortingHandler()}
+                              onKeyDown={(e) => {
+                                // Enhanced keyboard handling for sorting
+                                if (
+                                  header.column.getCanSort() &&
+                                  (e.key === "Enter" || e.key === " ")
+                                ) {
+                                  e.preventDefault();
+                                  header.column.getToggleSortingHandler()?.(e);
+                                }
+                              }}
+                              tabIndex={
+                                header.column.getCanSort() ? 0 : undefined
                               }
-                            }}
-                            tabIndex={
-                              header.column.getCanSort() ? 0 : undefined
-                            }
-                          >
-                            {flexRender(
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {{
+                                asc: (
+                                  <ChevronUpIcon
+                                    className="shrink-0 opacity-60"
+                                    size={16}
+                                    aria-hidden="true"
+                                  />
+                                ),
+                                desc: (
+                                  <ChevronDownIcon
+                                    className="shrink-0 opacity-60"
+                                    size={16}
+                                    aria-hidden="true"
+                                  />
+                                ),
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                          ) : (
+                            flexRender(
                               header.column.columnDef.header,
                               header.getContext()
-                            )}
-                            {{
-                              asc: (
-                                <ChevronUpIcon
-                                  className="shrink-0 opacity-60"
-                                  size={16}
-                                  aria-hidden="true"
-                                />
-                              ),
-                              desc: (
-                                <ChevronDownIcon
-                                  className="shrink-0 opacity-60"
-                                  size={16}
-                                  aria-hidden="true"
-                                />
-                              ),
-                            }[header.column.getIsSorted() as string] ?? null}
-                          </div>
-                        ) : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="last:py-0">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                            )
+                          )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="last:py-0">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <span className="inline-flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                        <FileIcon className="size-8" />
+                        <span>No results.</span>
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>

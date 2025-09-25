@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -37,11 +37,12 @@ import {
 } from "@/components/ui/select";
 
 // Custom Components
-import AvatarUploader from "@/components/custom/avataruploader1";
 import { PhoneInput } from "@/components/custom/phone-input";
 import LocationSelector from "@/components/custom/location-select";
 import { ButtonSpinner } from "@/components/custom/spinner";
 import { Label } from "../../ui/label";
+import ImageUploader from "@/components/custom/imageuploader";
+import { useUploadFile } from "@/data/files";
 
 interface ProfileFormProps {
   className?: string;
@@ -51,7 +52,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
   const router = useRouter();
   const { data: userProfile, isLoading: profileLoading } =
     useGetCurrentUserProfile();
-  const { mutateAsync: updateUser, isLoading: updating } = useUpdateUser();
+  const { mutateAsync: updateUser } = useUpdateUser();
+  const { mutateAsync: uploadFile } = useUploadFile();
+  const [updating, setUpdating] = useState(false);
 
   const form = useForm<UserUpdateType>({
     resolver: zodResolver(UserUpdateSchema),
@@ -84,18 +87,31 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
         avatar: userProfile.avatar || "",
         bio: userProfile.bio || "",
         gender: userProfile.gender || "",
-        profile_completed: userProfile.profile_completed || false,
+        profile_completed: userProfile.profile_completed,
       });
     }
   }, [userProfile, form]);
 
   const onSubmit = async (data: UserUpdateType) => {
+    setUpdating(true);
     try {
       // Set profile as completed before submission
       const updatedData = {
         ...data,
         profile_completed: true,
       };
+
+      if (updatedData.avatar && updatedData.avatar instanceof File) {
+        // Upload the new avatar file
+        const formData = new FormData();
+        formData.append("file", updatedData.avatar);
+        formData.append("key", updatedData.avatar.name);
+        formData.append("replace", "true");
+        const uploadResponse = await uploadFile(formData);
+        updatedData.avatar = uploadResponse.url;
+      } else if (updatedData.avatar === null) {
+        updatedData.avatar = "";
+      }
 
       await updateUser(updatedData);
       toast.success("Profile updated successfully!");
@@ -104,6 +120,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
       const errorMessage =
         error?.response?.data?.message || "Failed to update profile";
       toast.error(errorMessage);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -139,12 +157,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
                       <div className="flex flex-col items-center">
                         <FormLabel className="mb-2">Profile Photo</FormLabel>
                         <FormControl>
-                          <AvatarUploader 
-                            label="upload your profile photo"
-                            onImageChange={(imageUrl) => {
-                              field.onChange(imageUrl);
-                            }}
-                            defaultImage={typeof field.value === 'string' ? field.value : undefined}
+                          <ImageUploader
+                            name={field.name}
+                            value={field.value || ""}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />

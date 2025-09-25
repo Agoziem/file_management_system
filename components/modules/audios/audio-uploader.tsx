@@ -16,31 +16,7 @@ import {
 
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
-
-// Create some dummy initial audio files
-const initialFiles = [
-  {
-    name: "intro_music.mp3",
-    size: 3428576, // ~3.3MB
-    type: "audio/mpeg",
-    url: "https://example.com/intro_music.mp3",
-    id: "intro_music-1744638436563-8u5xuls",
-  },
-  {
-    name: "podcast_episode.wav",
-    size: 12582912, // ~12MB
-    type: "audio/wav",
-    url: "https://example.com/podcast_episode.wav",
-    id: "podcast_episode-123456789",
-  },
-  {
-    name: "background_loop.aac",
-    size: 2097152, // ~2MB
-    type: "audio/aac",
-    url: "https://example.com/background_loop.aac",
-    id: "background_loop-987654321",
-  },
-];
+import { ButtonSpinner } from "@/components/custom/spinner";
 
 const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
   const fileType = file.file instanceof File ? file.file.type : file.file.type;
@@ -87,11 +63,11 @@ const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
 
   for (const { icon: Icon, conditions } of Object.values(iconMap)) {
     if (conditions(fileType, fileName)) {
-      return <Icon className="size-9 opacity-60" />;
+      return <Icon className="size-12 opacity-60 text-primary" />;
     }
   }
 
-  return <FileIcon className="size-9 opacity-60" />;
+  return <FileIcon className="size-12 opacity-60 text-primary" />;
 };
 
 const getFilePreview = (file: {
@@ -109,7 +85,7 @@ const getFilePreview = (file: {
   );
 
   return (
-    <div className="bg-accent flex aspect-square items-center justify-center overflow-hidden rounded-t-[inherit]">
+    <div className="bg-secondary flex aspect-square items-center justify-center overflow-hidden rounded-t-[inherit]">
       {fileType.startsWith("image/") ? (
         file.file instanceof File ? (
           (() => {
@@ -132,7 +108,7 @@ export default function AudioUploader({
   onUpload,
   uploading,
 }: {
-  onUpload?: (files: File[]) => void;
+  onUpload?: (files: File[]) => Promise<void>;
   uploading?: boolean;
 }) {
   const maxSizeMB = 50; // 50MB for audio files
@@ -156,7 +132,6 @@ export default function AudioUploader({
     multiple: true,
     maxFiles,
     maxSize,
-    initialFiles,
     accept,
   });
 
@@ -198,6 +173,26 @@ export default function AudioUploader({
                   />
                   Remove all
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  onClick={async () => {
+                    if (onUpload) {
+                      const uploadFiles = files
+                        .map((f) => (f.file instanceof File ? f.file : null))
+                        .filter((f): f is File => f !== null);
+                      await onUpload(uploadFiles);
+                    }
+                    clearFiles();
+                  }}
+                >
+                  {uploading ? (
+                    <ButtonSpinner label="Uploading..." />
+                  ) : (
+                    "Upload audios"
+                  )}
+                </Button>
               </div>
             </div>
 
@@ -236,7 +231,9 @@ export default function AudioUploader({
             >
               <HeadphonesIcon className="size-4 opacity-60" />
             </div>
-            <p className="mb-1.5 text-sm font-medium">Drop your audio files here</p>
+            <p className="mb-1.5 text-sm font-medium">
+              Drop your audio files here
+            </p>
             <p className="text-muted-foreground text-xs">
               Max {maxFiles} audio files ∙ Up to {maxSizeMB}MB each
             </p>

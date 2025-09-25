@@ -1,9 +1,11 @@
 // File and Storage Response Models
+export type FileType = 'image' | 'document' | 'video' | 'audio' | 'other';
+
 export interface FileResponse {
   id: string;
   user_id: string;
   file_name: string;
-  file_type: 'image' | 'document' | 'video' | 'audio' | 'other';
+  file_type: FileType;
   file_size: number;
   file_url: string;
   created_at: string; // ISO datetime string

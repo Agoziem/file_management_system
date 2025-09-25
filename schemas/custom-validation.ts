@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
+
 export const optionalEmailSchema = z
   .union([z.string().email(), z.literal(""), z.undefined()])
   .optional();
@@ -11,10 +14,19 @@ export const optionalUrlSchema = z.union([
 ]);
 
 // Custom validation function
-export const imageSchema = z.union([
-  optionalUrlSchema,
-  z.instanceof(File, { message: "Invalid file type" }), // Allowing File upload
-]);
+export const imageSchema = z
+  .union([
+    z
+      .instanceof(File)
+      .refine((file) => ALLOWED_FILE_TYPES.includes(file.type), {
+        message: "Only .jpg, .jpeg, and .png files are allowed",
+      })
+      .refine((file) => file.size <= MAX_IMAGE_SIZE, {
+          message: "File size must not exceed 5 MB",
+        }),
+      z.string(),
+    ])
+    .optional();
 
 // Resuable optional number schema
 export const optionalNumberSchema = z

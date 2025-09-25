@@ -9,6 +9,7 @@ import {
   RadialBarChart,
 } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { formatFileSize } from "@/utils/utility";
 
 export const description = "A radial chart showing storage usage";
 
@@ -17,14 +18,6 @@ interface StorageChartProps {
   usedStorage: number;  // in GB
   className?: string;
 }
-
-// Helper function to format storage size
-const formatStorage = (sizeInGB: number) => {
-  if (sizeInGB >= 1000) {
-    return `${(sizeInGB / 1000).toFixed(1)}TB`;
-  }
-  return `${sizeInGB.toFixed(1)}GB`;
-};
 
 export function ChartRadialShape({ 
   totalStorage = 10, 
@@ -36,7 +29,7 @@ export function ChartRadialShape({
   
   const chartData = [
     { 
-      storage: formatStorage(totalStorage), 
+      storage: formatFileSize(totalStorage), 
       space_used: usagePercentage,
       fill: usagePercentage > 80 ? "var(--destructive)" : "var(--primary)"
     },
@@ -44,7 +37,7 @@ export function ChartRadialShape({
 
   const chartConfig = {
     space_used: {
-      label: `of ${formatStorage(totalStorage)}`,
+      label: `of ${formatFileSize(totalStorage)}`,
       color: "var(--chart-1)",
     },
   } satisfies ChartConfig;
@@ -59,7 +52,7 @@ export function ChartRadialShape({
           startAngle={90}
           endAngle={90 + (usagePercentage / 100) * 360}
           innerRadius={80}
-          outerRadius={140}
+          outerRadius={110}
         >
           <PolarGrid
             gridType="circle"
@@ -71,7 +64,7 @@ export function ChartRadialShape({
           <RadialBar 
             dataKey="space_used" 
             background 
-            cornerRadius={5}
+            cornerRadius={10}
           />
           <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
             <Label
@@ -89,7 +82,7 @@ export function ChartRadialShape({
                         y={(viewBox.cy || 0) - 10}
                         className="fill-foreground text-2xl font-bold"
                       >
-                        {formatStorage(remainingStorage)}
+                        {formatFileSize(remainingStorage)}
                       </tspan>
                       <tspan
                         x={viewBox.cx}
@@ -111,15 +104,15 @@ export function ChartRadialShape({
       <div className="space-y-2 text-center">
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Used:</span>
-          <span className="font-medium">{formatStorage(usedStorage)}</span>
+          <span className="font-medium">{formatFileSize(usedStorage)}</span>
         </div>
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Available:</span>
-          <span className="font-medium">{formatStorage(remainingStorage)}</span>
+          <span className="font-medium">{formatFileSize(remainingStorage)}</span>
         </div>
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Total:</span>
-          <span className="font-medium">{formatStorage(totalStorage)}</span>
+          <span className="font-medium">{formatFileSize(totalStorage)}</span>
         </div>
         <div className="w-full bg-secondary rounded-full h-2 mt-3">
           <div 

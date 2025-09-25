@@ -6,36 +6,12 @@ import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/custom/spinner";
 
-// Create some dummy initial files
-const initialFiles = [
-  {
-    name: "image-01.jpg",
-    size: 1528737,
-    type: "image/jpeg",
-    url: "https://picsum.photos/1000/800?grayscale&random=1",
-    id: "image-01-123456789",
-  },
-  {
-    name: "image-02.jpg",
-    size: 2345678,
-    type: "image/jpeg",
-    url: "https://picsum.photos/1000/800?grayscale&random=2",
-    id: "image-02-123456789",
-  },
-  {
-    name: "image-03.jpg",
-    size: 3456789,
-    type: "image/jpeg",
-    url: "https://picsum.photos/1000/800?grayscale&random=3",
-    id: "image-03-123456789",
-  },
-];
 
 export default function ImagesUploader({
   onUpload,
   uploading,
 }: {
-  onUpload?: (files: File[]) => void;
+  onUpload?: (files: File[]) => Promise<void>;
   uploading?: boolean;
 }) {
   const maxSizeMB = 5;
@@ -59,7 +35,6 @@ export default function ImagesUploader({
     maxSize,
     multiple: true,
     maxFiles,
-    initialFiles,
   });
 
   return (
@@ -155,12 +130,12 @@ export default function ImagesUploader({
               <Button
                 size="sm"
                 disabled={uploading}
-                onClick={() => {
+                onClick={async () => {
                   if (onUpload) {
                     const uploadFiles = files
                       .map((f) => (f.file instanceof File ? f.file : null))
                       .filter((f): f is File => f !== null);
-                    onUpload(uploadFiles);
+                    await onUpload(uploadFiles);
                   }
                   clearFiles();
                 }}

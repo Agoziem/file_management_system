@@ -16,6 +16,7 @@ import {
 
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
+import { ButtonSpinner } from "@/components/custom/spinner";
 
 // Create some dummy initial video files
 const initialFiles = [
@@ -122,7 +123,7 @@ const getFilePreview = (file: {
   );
 
   return (
-    <div className="bg-accent flex aspect-square items-center justify-center overflow-hidden rounded-t-[inherit] relative">
+    <div className="bg-secondary flex aspect-square items-center justify-center overflow-hidden rounded-t-[inherit] relative">
       {fileType.startsWith("image/") ? (
         file.file instanceof File ? (
           (() => {
@@ -132,7 +133,7 @@ const getFilePreview = (file: {
         ) : file.file.url ? (
           renderImage(file.file.url)
         ) : (
-          <ImageIcon className="size-5 opacity-60" />
+          <ImageIcon className="size-12 opacity-60 text-primary" />
         )
       ) : fileType.startsWith("video/") ? (
         file.file instanceof File ? (
@@ -142,7 +143,7 @@ const getFilePreview = (file: {
               <div className="relative size-full">
                 {renderVideo(previewUrl)}
                 <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
-                  <VideoIcon className="size-8 text-white/80 drop-shadow-lg" />
+                  <VideoIcon className="size-8 text-primary drop-shadow-lg" />
                 </div>
               </div>
             );
@@ -151,11 +152,11 @@ const getFilePreview = (file: {
           <div className="relative size-full">
             {renderVideo(file.file.url)}
             <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
-              <VideoIcon className="size-8 text-white/80 drop-shadow-lg" />
+              <VideoIcon className="size-8 text-primary drop-shadow-lg" />
             </div>
           </div>
         ) : (
-          <VideoIcon className="size-5 opacity-60" />
+          <VideoIcon className="size-5 text-primary" />
         )
       ) : (
         getFileIcon(file)
@@ -168,7 +169,7 @@ export default function VideoUploader({
   onUpload,
   uploading,
 }: {
-  onUpload?: (files: File[]) => void;
+  onUpload?: (files: File[]) => Promise<void>;
   uploading?: boolean;
 }) {
   const maxSizeMB = 500; // 500MB for video files
@@ -234,6 +235,26 @@ export default function VideoUploader({
                   />
                   Remove all
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  onClick={async () => {
+                    if (onUpload) {
+                      const uploadFiles = files
+                        .map((f) => (f.file instanceof File ? f.file : null))
+                        .filter((f): f is File => f !== null);
+                      await onUpload(uploadFiles);
+                    }
+                    clearFiles();
+                  }}
+                >
+                  {uploading ? (
+                    <ButtonSpinner label="Uploading..." />
+                  ) : (
+                    "Upload Videos"
+                  )}
+                </Button>
               </div>
             </div>
 
@@ -272,7 +293,9 @@ export default function VideoUploader({
             >
               <VideoIcon className="size-4 opacity-60" />
             </div>
-            <p className="mb-1.5 text-sm font-medium">Drop your video files here</p>
+            <p className="mb-1.5 text-sm font-medium">
+              Drop your video files here
+            </p>
             <p className="text-muted-foreground text-xs">
               Max {maxFiles} video files ∙ Up to {maxSizeMB}MB each
             </p>

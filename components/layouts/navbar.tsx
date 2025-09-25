@@ -24,6 +24,7 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   const { toggleSidebar } = useSidebar();
   const [isStoragePanelOpen, setIsStoragePanelOpen] = useState(false);
+  
 
   useEffect(() => {
     setMounted(true);

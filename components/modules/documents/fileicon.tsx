@@ -12,26 +12,26 @@ export const getFileIcon = (file: { file: File | { type: string; name: string } 
     fileName.endsWith(".doc") ||
     fileName.endsWith(".docx")
   ) {
-    return <FileTextIcon className="size-4 opacity-60" />;
+    return <FileTextIcon className="size-4" />;
   } else if (
     fileType.includes("zip") ||
     fileType.includes("archive") ||
     fileName.endsWith(".zip") ||
     fileName.endsWith(".rar")
   ) {
-    return <FileArchiveIcon className="size-4 opacity-60" />;
+    return <FileArchiveIcon className="size-4" />;
   } else if (
     fileType.includes("excel") ||
     fileName.endsWith(".xls") ||
     fileName.endsWith(".xlsx")
   ) {
-    return <FileSpreadsheetIcon className="size-4 opacity-60" />;
+    return <FileSpreadsheetIcon className="size-4" />;
   } else if (fileType.includes("video/")) {
-    return <VideoIcon className="size-4 opacity-60" />;
+    return <VideoIcon className="size-4" />;
   } else if (fileType.includes("audio/")) {
-    return <HeadphonesIcon className="size-4 opacity-60" />;
+    return <HeadphonesIcon className="size-4" />;
   } else if (fileType.startsWith("image/")) {
-    return <ImageIcon className="size-4 opacity-60" />;
+    return <ImageIcon className="size-4" />;
   }
-  return <FileIcon className="size-4 opacity-60" />;
+  return <FileIcon className="size-4" />;
 };

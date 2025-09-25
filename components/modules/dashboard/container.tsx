@@ -2,18 +2,45 @@
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { recentFiles, sampleData } from "./dummy-data";
 import { StoragePanelContent } from "./storage-panel";
 import QuickActions from "./quick-action";
-import DataTable from "../../custom/datatable";
 import FilesDataTable from "../../custom/datatable";
-import { FileResponse } from "@/types/files";
 import Link from "next/link";
 import UploadDropdown from "@/components/custom/upload-dropdown";
 import { useGetCurrentUserProfile } from "@/data/user";
+import { useGetAllFiles, useGetRecentActivity } from "@/data/files";
+import {
+  CheckIcon,
+  FileText,
+  Image,
+  Video,
+  Music,
+  FileIcon,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatFileSize } from "@/utils/utility";
+
+const getFileIcon = (fileType: string) => {
+  switch (fileType) {
+    case "image":
+      return Image;
+    case "video":
+      return Video;
+    case "audio":
+      return Music;
+    case "document":
+      return FileText;
+    default:
+      return FileIcon;
+  }
+};
 
 export default function FileManagerDashboard() {
-  const { data:userProfile} = useGetCurrentUserProfile();
+  const { data: userProfile, isLoading: isLoadingUser } =
+    useGetCurrentUserProfile();
+  const { data: recentActivities, isLoading: isLoadingRecent } =
+    useGetRecentActivity();
+  const { data: userFiles, isLoading: isLoadingFiles } = useGetAllFiles();
   return (
     <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
       <div className="p-4 xl:col-span-7 ">
@@ -21,7 +48,7 @@ export default function FileManagerDashboard() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="mb-1 text-xl font-semibold lg:text-2xl dark:text-white">
-              Welcome, {userProfile?.first_name || 'User'}
+              Welcome, {userProfile?.first_name || "User"}
             </h1>
             <p className="text-muted-foreground text-sm lg:text-base">
               All of your files are displayed here
@@ -55,21 +82,43 @@ export default function FileManagerDashboard() {
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recentFiles.map((file, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-lg">
-                    <file.icon className="text-muted-foreground h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{file.name}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {file.size} • {file.type}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {isLoadingRecent ? (
+              <>
+                {[...Array(3)].map((_, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <Skeleton className="h-3 w-full bg-muted" />
+                        <Skeleton className="h-3 w-full bg-muted" />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </>
+            ) : (
+              recentActivities?.recent_activity.slice(0, 3).map((activity, index) => {
+                const FileIconComponent = getFileIcon(activity.file_type);
+                return (
+                  <Card key={index} className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-lg">
+                        <FileIconComponent className="text-primary h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {activity.file_name}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {formatFileSize(activity.file_size)} •{" "}
+                          {activity.file_type.toUpperCase()}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -79,7 +128,7 @@ export default function FileManagerDashboard() {
             <h2 className="text-base lg:text-lg">All Files</h2>
           </div>
         </div>
-        <FilesDataTable data={sampleData} />
+        <FilesDataTable data={userFiles?.items} loading={isLoadingFiles} />
       </div>
 
       <div className="hidden xl:block xl:col-span-3 pt-4">

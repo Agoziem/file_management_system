@@ -1,17 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { BellIcon } from "lucide-react"
+import { useEffect, useMemo, useState } from "react";
+import { BellIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useGetUnreadNotifications } from "@/data/notifications";
 
 export default function NotificationBtn() {
-  const [count, setCount] = useState(3)
+  const [count, setCount] = useState(0);
+  const { data: unreadNotifications } = useGetUnreadNotifications();
+
+  useEffect(() => {
+    if (unreadNotifications && unreadNotifications.items) {
+      setCount(unreadNotifications.items.length || 0);
+    }
+  }, [unreadNotifications]);
 
   const handleClick = () => {
-    setCount(0)
-  }
+    setCount(0);
+  };
 
   return (
     <Button
@@ -28,5 +36,5 @@ export default function NotificationBtn() {
         </Badge>
       )}
     </Button>
-  )
+  );
 }

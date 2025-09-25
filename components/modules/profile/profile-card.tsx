@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileEditModal from "./profile-edit-modal";
+import { UiSpinner } from "@/components/custom/spinner";
 
 interface FilesSummary {
   total: number;
@@ -147,14 +148,7 @@ const ProfileCard: React.FC = React.memo(() => {
 
   // Loading state
   if (isUserLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <span className="ml-2 text-sm text-muted-foreground">
-          Loading profile...
-        </span>
-      </div>
-    );
+    return <UiSpinner />;
   }
 
   // Error state
@@ -188,7 +182,7 @@ const ProfileCard: React.FC = React.memo(() => {
                     src={userDisplayData.avatarUrl || undefined}
                     alt={`${userDisplayData.displayName}'s avatar`}
                   />
-                  <AvatarFallback className="text-lg">
+                  <AvatarFallback className="text-3xl">
                     {userDisplayData.initials}
                   </AvatarFallback>
                 </Avatar>

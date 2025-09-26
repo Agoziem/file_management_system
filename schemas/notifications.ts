@@ -1,49 +1,23 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { imageSchema, optionalUrlSchema } from "./custom-validation";
 
-// -----------------------------
-// 🔹 Base Notification Schemas
-// -----------------------------
+// UUID validation schema
+const uuidSchema = z.string().uuid("Invalid UUID format");
 
-export const NotificationBaseSchema = z.object({
-  sender_id: z.string().uuid("Invalid sender ID").nullable().optional(),
-  title: z.string().min(1, "Title is required"),
-  message: z.string().min(1, "Message is required"),
-  link: z.string().url("Invalid link URL").nullable().optional(),
-  image: z.string().url("Invalid image URL").nullable().optional(),
+// Notification Base Schema
+const notificationBaseSchema = z.object({
+  sender_id: uuidSchema.nullable().optional(),
+  title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  message: z.string().min(1, "Message is required").max(1000, "Message must be less than 1000 characters"),
+  link: optionalUrlSchema,
+  image: imageSchema
 });
 
-// -----------------------------
-// 🔹 Input Schemas (Create & Update)
-// -----------------------------
-
-export const NotificationCreateSchema = NotificationBaseSchema.extend({
-  user_ids: z.array(z.string().uuid("Invalid user ID")).default([]),
+// Notification Create Schema
+export const notificationCreateSchema = notificationBaseSchema.extend({
+  user_ids: z.array(uuidSchema).min(1, "At least one user ID is required"),
 });
 
-export const NotificationUpdateSchema = z.object({
-  id: z.string().uuid("Invalid notification ID"),
-  sender_id: z.string().uuid("Invalid sender ID").nullable().optional(),
-  title: z.string().min(1, "Title is required").optional(),
-  message: z.string().min(1, "Message is required").optional(),
-  link: z.string().url("Invalid link URL").nullable().optional(),
-  image: z.string().url("Invalid image URL").nullable().optional(),
-  user_ids: z.array(z.string().uuid("Invalid user ID")).default([]),
-});
-
-export const NotificationReadUpdateSchema = z.object({
-  notification_id: z.string().uuid("Invalid notification ID"),
-  user_id: z.string().uuid("Invalid user ID"),
-  is_read: z.boolean(),
-});
-
-export const RemoveUpdateSchema = z.object({
-  notification_id: z.string().uuid("Invalid notification ID"),
-  user_id: z.string().uuid("Invalid user ID"),
-});
-
-// Export inferred types for the schemas
-export type NotificationBaseType = z.infer<typeof NotificationBaseSchema>;
-export type NotificationCreateType = z.infer<typeof NotificationCreateSchema>;
-export type NotificationUpdateType = z.infer<typeof NotificationUpdateSchema>;
-export type NotificationReadUpdateType = z.infer<typeof NotificationReadUpdateSchema>;
-export type RemoveUpdateType = z.infer<typeof RemoveUpdateSchema>;
+// Type inference
+export type NotificationCreateFormData = z.infer<typeof notificationCreateSchema>;
+export type NotificationBaseFormData = z.infer<typeof notificationBaseSchema>;

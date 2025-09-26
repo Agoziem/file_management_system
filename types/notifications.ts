@@ -1,129 +1,64 @@
+export type UUID = string; // UUID4 format assumed as string
+
 // -----------------------------
-// 🔹 Response Models
+// 🔹 Base Notification Interfaces
 // -----------------------------
 
-export interface NotificationUserResponse {
-  /** User info in the context of a notification + read status */
-  id: string;
-  first_name: string;
-  last_name: string;
-  image_url: string | null;
-  has_read: boolean; // From NotificationRecipient.is_read
-}
-
-export interface NotificationOnlyResponse {
-  /** Notification without recipient details */
-  id: string;
-  sender_id: string | null;
+export interface NotificationBase {
+  sender_id?: UUID | null;
   title: string;
   message: string;
-  link: string | null;
-  image: string | null;
-  created_at: string; // ISO datetime string
-}
-
-export interface NotificationResponse {
-  /** Complete notification with recipients */
-  id: string;
-  sender_id: string | null;
-  title: string;
-  message: string;
-  link: string | null;
-  image: string | null;
-  created_at: string; // ISO datetime string
-  recipients: NotificationUserResponse[];
+  link?: string | null;
+  image?: string | null;
 }
 
 // -----------------------------
-// 🔹 List & Pagination Models
+// 🔹 Input Interfaces
 // -----------------------------
 
-export interface NotificationList {
-  items: NotificationResponse[];
-  count: number;
-  page?: number;
-  page_size?: number;
-  total_pages?: number;
+export interface NotificationCreate extends NotificationBase {
+  user_ids: UUID[];
 }
 
-export interface UserNotificationList {
-  /** Notifications for a specific user with read status */
-  items: Array<{
-    id: string;
-    sender_id: string | null;
-    title: string;
-    message: string;
-    link: string | null;
-    image: string | null;
-    created_at: string;
-    is_read: boolean;
-  }>;
-  count: number;
-  unread_count: number;
+export interface NotificationUpdate {
+  id: UUID;
+  sender_id?: UUID | null;
+  title?: string;
+  message?: string;
+  link?: string | null;
+  image?: string | null;
 }
 
-// -----------------------------
-// 🔹 Utility Types
-// -----------------------------
-
-export interface NotificationStats {
-  total_notifications: number;
-  unread_notifications: number;
-  read_notifications: number;
-  notifications_today: number;
-  notifications_this_week: number;
-}
-
-export interface NotificationPreview {
-  id: string;
-  title: string;
-  message: string;
-  created_at: string;
+export interface NotificationReadUpdate {
+  notification_id: UUID;
+  user_id: UUID;
   is_read: boolean;
 }
 
-export interface BulkNotificationResult {
-  success_count: number;
-  failure_count: number;
-  total_count: number;
-  failed_user_ids: string[];
+export interface RemoveUpdate {
+  notification_id: UUID;
+  user_id: UUID;
 }
 
 // -----------------------------
-// 🔹 Action Response Types
+// 🔹 Output Interfaces
 // -----------------------------
 
-export interface NotificationActionResponse {
-  success: boolean;
-  message: string;
-  notification_id: string;
+export interface NotificationUserResponse {
+  id: UUID;
+  first_name: string;
+  last_name: string;
+  image_url?: string | null;
+  has_read: boolean; // Reflects `NotificationRecipient.is_read`
 }
 
-export interface BulkReadUpdateResponse {
-  success: boolean;
-  message: string;
-  updated_count: number;
-  failed_notifications: string[];
+export interface NotificationOnlyResponse extends NotificationBase {
+  id: UUID;
+  created_at: string; // ISO format datetime
 }
 
-export interface NotificationDeleteResponse {
-  success: boolean;
-  message: string;
-  deleted_count: number;
-}
-
-// -----------------------------
-// 🔹 Real-time Events
-// -----------------------------
-
-export interface NotificationEvent {
-  type: 'new_notification' | 'notification_read' | 'notification_deleted';
-  notification: NotificationOnlyResponse;
-  user_id: string;
-  timestamp: string;
-}
-
-export interface NotificationSocketData {
-  event: string;
-  data: NotificationEvent;
+export interface NotificationResponse extends NotificationBase {
+  id: UUID;
+  created_at: string;
+  recipients: NotificationUserResponse[];
 }

@@ -112,7 +112,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ className }) => {
       } else if (updatedData.avatar === null) {
         updatedData.avatar = "";
       }
-
+      console.log("Submitting updated profile data:", updatedData);
       await updateUser(updatedData);
       toast.success("Profile updated successfully!");
       router.push("/"); // Redirect to dashboard after successful onboarding

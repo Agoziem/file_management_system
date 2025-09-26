@@ -1,5 +1,11 @@
-
-import { CheckIcon, FileText, Image, Video, Music, FileIcon } from "lucide-react"
+import {
+  CheckIcon,
+  FileText,
+  Image,
+  Video,
+  Music,
+  FileIcon,
+} from "lucide-react";
 
 import {
   Timeline,
@@ -10,59 +16,66 @@ import {
   TimelineItem,
   TimelineSeparator,
   TimelineTitle,
-} from "@/components/ui/timeline"
-import { FileActivityWithFileDetails, FileActivityActions } from "@/types/files"
-import { Card } from "@/components/ui/card"
-import moment from "moment"
-import { useGetRecentActivity } from "@/data/files"
-import { formatDate, formatFileSize } from "@/utils/utility"
+} from "@/components/ui/timeline";
+import {
+  FileActivityWithFileDetails,
+  FileActivityActions,
+} from "@/types/files";
+import { Card } from "@/components/ui/card";
+import { useGetRecentActivity } from "@/data/files";
+import { formatDate, formatFileSize } from "@/utils/utility";
 
 // Helper function to get file icon based on type
 const getFileIcon = (fileType: string) => {
   switch (fileType) {
-    case 'image':
-      return Image
-    case 'video':
-      return Video
-    case 'audio':
-      return Music
-    case 'document':
-      return FileText
+    case "image":
+      return Image;
+    case "video":
+      return Video;
+    case "audio":
+      return Music;
+    case "document":
+      return FileText;
     default:
-      return FileIcon
+      return FileIcon;
   }
-}
-
+};
 
 // Helper function to get action color
 const getActionColor = (action: FileActivityActions): string => {
   switch (action) {
-    case 'uploaded':
-      return 'text-green-600'
-    case 'modified':
-      return 'text-blue-600'
-    case 'shared':
-      return 'text-purple-600'
-    case 'archived':
-      return 'text-orange-600'
+    case "uploaded":
+      return "text-green-600";
+    case "modified":
+      return "text-blue-600";
+    case "shared":
+      return "text-purple-600";
+    case "archived":
+      return "text-orange-600";
     default:
-      return 'text-gray-600'
+      return "text-gray-600";
   }
-}
-
+};
 
 export default function RecentFilesList() {
-  const { data: recentActivities } = useGetRecentActivity()
+  const { data: recentActivities } = useGetRecentActivity();
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight dark:text-white">Recent Activity</h2>
-        <p className="text-muted-foreground">Your latest file operations and updates</p>
+        <h2 className="text-2xl font-bold tracking-tight dark:text-white">
+          Recent Activity
+        </h2>
+        <p className="text-muted-foreground">
+          Your latest file operations and updates
+        </p>
       </div>
 
-      <Timeline defaultValue={recentActivities?.recent_activity.length}>
+      <Timeline
+        defaultValue={recentActivities?.recent_activity.length}
+        value={recentActivities?.recent_activity.length}
+      >
         {recentActivities?.recent_activity.map((activity, index) => {
-          const FileIconComponent = getFileIcon(activity.file_type)
+          const FileIconComponent = getFileIcon(activity.file_type);
 
           return (
             <TimelineItem
@@ -87,13 +100,20 @@ export default function RecentFilesList() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="truncate text-sm font-medium">{activity.file_name}</p>
-                        <span className={`text-xs px-2 py-1 rounded-full bg-opacity-10 ${getActionColor(activity.action)}`}>
+                        <p className="truncate text-sm font-medium">
+                          {activity.file_name}
+                        </p>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full bg-opacity-10 ${getActionColor(
+                            activity.action
+                          )}`}
+                        >
                           {activity.action}
                         </span>
                       </div>
                       <p className="text-muted-foreground text-xs">
-                        {formatFileSize(activity.file_size)} • {activity.file_type.toUpperCase()}
+                        {formatFileSize(activity.file_size)} •{" "}
+                        {activity.file_type.toUpperCase()}
                       </p>
                       <p className="text-muted-foreground text-xs mt-1">
                         Created: {formatDate(activity.timestamp)}
@@ -102,14 +122,16 @@ export default function RecentFilesList() {
                     <div className="flex flex-col items-end gap-1">
                       <div className="flex items-center gap-1">
                         <CheckIcon className="h-4 w-4 text-green-500" />
-                        <span className="text-xs text-muted-foreground">Complete</span>
+                        <span className="text-xs text-muted-foreground">
+                          Complete
+                        </span>
                       </div>
                     </div>
                   </div>
                 </Card>
               </TimelineContent>
             </TimelineItem>
-          )
+          );
         })}
       </Timeline>
 
@@ -120,5 +142,5 @@ export default function RecentFilesList() {
         </div>
       )}
     </div>
-  )
+  );
 }

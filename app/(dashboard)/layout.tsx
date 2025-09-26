@@ -1,10 +1,13 @@
+"use client";
 import Navbar from "@/components/layouts/navbar";
 import AppSidebar from "@/components/layouts/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import useFcmToken from "@/hooks/useFcmToken";
 import React from "react";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const { token, notificationPermissionStatus } = useFcmToken();
   return (
     <div>
       <SidebarProvider>

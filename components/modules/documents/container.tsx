@@ -1,12 +1,14 @@
 "use client";
 import FilesDataTable from "@/components/custom/datatable";
-import { useGetAllFiles } from "@/data/files";
+import { useDeleteFile, useGetAllFiles } from "@/data/files";
 import React from "react";
 
 const DocumentsContainer = () => {
   const { data: userFiles, isLoading: isLoadingFiles } = useGetAllFiles({
     file_type: "document",
   });
+
+  const { mutateAsync: removeFile } = useDeleteFile();
 
   return (
     <div className="w-full p-4">

@@ -76,7 +76,6 @@ export function LoginForm({
   const onSubmit = async (data: LoginSchemaType) => {
     try {
       const response = await Login(data);
-      console.log(response);
       if ("two_factor_required" in response) {
         toast.success(response.message);
         reset();

@@ -20,7 +20,7 @@ interface CustomDialogProps {
   children: ReactNode;
   footer?: ReactNode;
   sizeClassName?: string;
-  heightClassName?: string;
+  showFooter?: boolean;
 }
 
 export function CustomDialog({
@@ -31,17 +31,17 @@ export function CustomDialog({
   children,
   footer,
   sizeClassName = "sm:max-w-lg",
-  heightClassName = "sm:max-h-[min(640px,80vh)]",
+  showFooter = true,
 }: CustomDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
-        className={`flex flex-col gap-0 p-0 ${heightClassName} ${sizeClassName} [&>button:last-child]:hidden`}
+        className={`flex flex-col gap-0 p-0 ${sizeClassName} ${showFooter && "[&>button:last-child]:hidden"}`}
       >
-        <ScrollArea className="flex max-h-[75vh] flex-col overflow-hidden">
+        <ScrollArea className="flex max-h-[90vh] flex-col overflow-hidden">
           <DialogHeader className="contents space-y-0 text-left">
-            <DialogTitle className="px-6 pt-6">{title}</DialogTitle>
+            <DialogTitle className="px-8 pt-6">{title}</DialogTitle>
             <DialogDescription asChild>
               <div className="p-6">{children}</div>
             </DialogDescription>
@@ -50,7 +50,7 @@ export function CustomDialog({
           <DialogFooter className="px-6 pb-6 sm:justify-start">
             {footer ? (
               footer
-            ) : (
+            ) : showFooter ? (
               <>
                 <DialogClose asChild>
                   <Button type="button" variant="outline">
@@ -61,7 +61,7 @@ export function CustomDialog({
                   <Button type="button">Okay</Button>
                 </DialogClose>
               </>
-            )}
+            ) : null}
           </DialogFooter>
         </ScrollArea>
       </DialogContent>

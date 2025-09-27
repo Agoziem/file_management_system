@@ -39,13 +39,13 @@ const NotificationCard = ({
 
   return (
     <div
-      className="p-4 mb-4 border rounded-lg hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+      className="p-4 mb-4 border rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center"
       onClick={() => onClick(notification)}
     >
       <div className="flex items-center">
         <div className="flex-shrink-0 mr-4 flex items-center gap-2">
           <GoDotFill
-            className={isRead ? "text-gray-400" : "text-primary"}
+            className={isRead ? "text-muted-foreground" : "text-primary"}
             size={20}
           />
 
@@ -65,14 +65,14 @@ const NotificationCard = ({
           <h2
             className={
               isRead
-                ? "font-semibold text-gray-600"
+                ? "font-semibold text-muted-foreground"
                 : "font-semibold text-primary"
             }
           >
             {notification.title}
           </h2>
-          <p className="text-sm text-gray-600">{notification.message}</p>
-          <span className="text-xs text-gray-500">
+          <p className="text-sm text-muted-foreground">{notification.message}</p>
+          <span className="text-xs text-muted-foreground">
             {moment(notification.created_at).fromNow()}
           </span>
         </div>
@@ -85,7 +85,7 @@ const NotificationCard = ({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="min-w-[180px] rounded-lg px-2 py-2 pb-3 border-0 shadow-lg bg-white z-50"
+          className="min-w-[180px]"
           align="end"
           sideOffset={5}
         >
@@ -94,7 +94,7 @@ const NotificationCard = ({
               e.stopPropagation();
               onClick(notification);
             }}
-            className="cursor-pointer hover:font-medium hover:text-primary"
+            className="cursor-pointer"
           >
             View Details
           </DropdownMenuItem>
@@ -105,7 +105,7 @@ const NotificationCard = ({
                 e.stopPropagation();
                 onClick(notification);
               }}
-              className="cursor-pointer hover:font-medium hover:text-primary"
+              className="cursor-pointer"
             >
               Mark as Read
             </DropdownMenuItem>
@@ -116,7 +116,7 @@ const NotificationCard = ({
               e.stopPropagation();
               onRemove(notification);
             }}
-            className="cursor-pointer hover:font-medium hover:text-primary"
+            className="cursor-pointer"
           >
             Remove Notification
           </DropdownMenuItem>

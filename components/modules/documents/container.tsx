@@ -2,6 +2,7 @@
 import FilesDataTable from "@/components/custom/datatable";
 import { useDeleteFile, useGetAllFiles } from "@/data/files";
 import React from "react";
+import { toast } from "sonner";
 
 const DocumentsContainer = () => {
   const { data: userFiles, isLoading: isLoadingFiles } = useGetAllFiles({
@@ -9,6 +10,24 @@ const DocumentsContainer = () => {
   });
 
   const { mutateAsync: removeFile } = useDeleteFile();
+
+  const handleDelete = async (fileIds: string[]) => {
+    // Show one loading toast before starting deletion
+    toast.loading("Deleting files...", { id: "delete-files" });
+    try {
+      await Promise.all(
+        fileIds.map(async (fileId) => {
+          await removeFile(fileId);
+        })
+      );
+      toast.success(`${fileIds.length} file(s) deleted successfully`, {
+        id: "delete-files",
+      });
+    } catch (error) {
+      console.error("Error deleting files:", error);
+      toast.error("Some files could not be deleted", { id: "delete-files" });
+    }
+  };
 
   return (
     <div className="w-full p-4">
@@ -26,6 +45,7 @@ const DocumentsContainer = () => {
           uploadlink="/documents/upload"
           buttonText="Upload Document"
           loading={isLoadingFiles}
+          onDeleteFiles={handleDelete}
         />
       </div>
     </div>

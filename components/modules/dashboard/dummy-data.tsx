@@ -8,6 +8,7 @@ import {
   Clock,
   BarChart3,
   User,
+  Bell,
 } from "lucide-react";
 
 export const fileTypeColors = {
@@ -25,6 +26,7 @@ export const sidebarItems = [
   { icon: ImageIcon, label: "Image", href: "/images" },
   { icon: Video, label: "Videos", href: "/videos" },
   { icon: Headphones, label: "Audios", href: "/audios" },
+  { icon: Bell, label: "Notifications", href: "/manage-notifications" },
   { icon: User, label: "Manage Profile", href: "/profile" }
 ];
 

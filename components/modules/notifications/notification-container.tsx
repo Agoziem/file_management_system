@@ -1,33 +1,20 @@
 "use client";
 import {
   useGetAllNotifications,
-  useGetUserUnreadNotifications,
   useMarkNotificationAsRead,
   useRemoveUserasRecipient,
 } from "@/data/notifications";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   NotificationResponse,
-  NotificationOnlyResponse,
 } from "@/types/notifications";
-import { UserModel } from "@/types/user";
 import moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaHome } from "react-icons/fa";
-import { GoDotFill } from "react-icons/go";
 import NotificationCard from "./notification-card";
 import NotificationPagination from "./notification-pagination";
 import { CustomDialog } from "@/components/custom/custom-dialog";
@@ -179,8 +166,10 @@ const NotificationContainer = () => {
           if (!open) setSelectedNotification(null);
         }}
         title="Notification Details"
+        showFooter={false}
+
       >
-        <div className="p-4 pt-0 space-y-4">
+        <div className="p-2 pt-0 space-y-4">
           <h2 className="text-lg font-semibold text-primary">
             {selectedNotification?.title || "Notification Title"}
           </h2>
@@ -190,19 +179,20 @@ const NotificationContainer = () => {
               <Image
                 src={selectedNotification.image}
                 alt="Notification Image"
-                height={100}
-                width={100}
+                height={500}
+                width={500}
                 className="rounded-lg object-cover w-full h-full"
+                quality={100}
               />
             </div>
           )}
 
           <div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {selectedNotification?.message ||
                 "This is the notification message."}
             </p>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {selectedNotification
                 ? moment(selectedNotification.created_at).fromNow()
                 : "Just now"}

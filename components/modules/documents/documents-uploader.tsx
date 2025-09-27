@@ -126,10 +126,10 @@ export default function DocumentsUploader({
           ))}
 
           {/* Remove all files button */}
-          {files.length > 1 && (
+          {files.length > 0 && (
             <div className="pt-2 flex gap-2">
               <Button size="sm" variant="outline" onClick={clearFiles}>
-                Remove all files
+                {files.length > 1 ? "Remove all files" : "Remove file"}
               </Button>
               {/* to be implemented later */}
               <Button
@@ -148,7 +148,7 @@ export default function DocumentsUploader({
                 {uploading ? (
                   <ButtonSpinner label="Uploading..." />
                 ) : (
-                  "Upload files"
+                  files.length > 1 ? "Upload files" : "Upload file"
                 )}
               </Button>
             </div>

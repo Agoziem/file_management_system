@@ -107,6 +107,7 @@ import SocialShare from "@/components/custom/social-share";
 import moment from "moment";
 import Link from "next/link";
 import UploadDropdown from "./upload-dropdown";
+import { toast } from "sonner";
 
 type Item = FileResponse;
 
@@ -596,7 +597,10 @@ export default function FilesDataTable({
               {[...Array(6)].map((_, rowIdx) => (
                 <div key={rowIdx} className="flex mb-2">
                   {[...Array(columns.length)].map((_, colIdx) => (
-                    <Skeleton key={colIdx} className="h-6 flex-1 mx-1 bg-muted" />
+                    <Skeleton
+                      key={colIdx}
+                      className="h-6 flex-1 mx-1 bg-muted"
+                    />
                   ))}
                 </div>
               ))}
@@ -828,9 +832,10 @@ function RowActions({ row }: { row: Row<Item> }) {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const fileUrl = `${window.location.origin}/files/${row.original.id}`;
+    const fileUrl = row.original.file_url;
     navigator.clipboard.writeText(fileUrl);
     setLinkCopied(true);
+    toast.success("Link copied to clipboard");
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
@@ -875,9 +880,6 @@ function RowActions({ row }: { row: Row<Item> }) {
             )}
             <span>Copy link</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -896,9 +898,7 @@ function RowActions({ row }: { row: Row<Item> }) {
                 </AlertDialogTitle>
               </AlertDialogHeader>
               <SocialShare
-                fileUrl={`${
-                  typeof window !== "undefined" ? window.location.origin : ""
-                }/files/${row.original.id}`}
+                fileUrl={row.original.file_url}
               />
               <AlertDialogFooter>
                 <AlertDialogCancel className="bg-primary text-white">
@@ -907,15 +907,6 @@ function RowActions({ row }: { row: Row<Item> }) {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <DropdownMenuItem>
-            <ArchiveIcon
-              size={16}
-              className="opacity-60 hover:text-primary focus:text-primary"
-              aria-hidden="true"
-            />
-            <span>Archive</span>
-            <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <AlertDialog>

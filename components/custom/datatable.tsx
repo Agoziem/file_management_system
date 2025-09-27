@@ -931,8 +931,8 @@ function RowActions({ row }: { row: Row<Item> }) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete file?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete "
-                  {row.original.file_name}" and remove it from our servers.
+                  This action cannot be undone. This will permanently delete &ldquo;
+                  {row.original.file_name}&rdquo; and remove it from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
             </div>

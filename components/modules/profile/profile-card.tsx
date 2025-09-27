@@ -550,9 +550,11 @@ const ProfileCard: React.FC = React.memo(() => {
                           <div className="flex justify-end gap-2">
                             <Button
                               onClick={() => {
-                                user?.two_factor_enabled
-                                  ? disable2FA()
-                                  : enable2FA();
+                                if (user?.two_factor_enabled) {
+                                  disable2FA();
+                                } else {
+                                  enable2FA();
+                                }
                                 setOpen2FAModal(false);
                               }}
                               disabled={submitting}

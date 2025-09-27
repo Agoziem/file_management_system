@@ -136,7 +136,11 @@ export default function AvatarDropdownComponent({
           <div className="flex justify-end gap-2">
             <Button
               onClick={() => {
-                userProfile?.two_factor_enabled ? disable2FA() : enable2FA();
+                if (userProfile?.two_factor_enabled) {
+                  disable2FA();
+                } else {
+                  enable2FA();
+                }
                 setOpen2FAModal(false);
               }}
               disabled={submitting}

@@ -5,8 +5,11 @@ import {
   ArrowUpRightIcon,
   CircleFadingPlusIcon,
   FileInputIcon,
+  FileText,
   FolderPlusIcon,
+  ImageIcon,
   SearchIcon,
+  VideoIcon,
 } from "lucide-react";
 
 import {
@@ -19,11 +22,13 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function SearchInputComponent() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -54,7 +59,10 @@ export default function SearchInputComponent() {
         </kbd>
       </button>
       {/* button for small screen */}
-      <button className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background p-2 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring  md:hidden" onClick={() => setOpen(true)}>
+      <button
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background p-2 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring  md:hidden"
+        onClick={() => setOpen(true)}
+      >
         <SearchIcon className="h-4 w-4" />
         <span className="sr-only">Search</span>
       </button>
@@ -63,59 +71,115 @@ export default function SearchInputComponent() {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Quick start">
-            <CommandItem>
-              <FolderPlusIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>New folder</span>
-              <CommandShortcut className="justify-center">⌘N</CommandShortcut>
+            <CommandItem asChild>
+              <Link href="/documents/upload">
+                <FileText
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>New File</span>
+                <CommandShortcut className="justify-center">⌘F</CommandShortcut>
+              </Link>
             </CommandItem>
-            <CommandItem>
-              <FileInputIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>Import document</span>
-              <CommandShortcut className="justify-center">⌘I</CommandShortcut>
+            <CommandItem asChild>
+              <Link href="/documents/upload">
+                <CircleFadingPlusIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Upload Document</span>
+                <CommandShortcut className="justify-center">⌘D</CommandShortcut>
+              </Link>
             </CommandItem>
-            <CommandItem>
-              <CircleFadingPlusIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>Add block</span>
-              <CommandShortcut className="justify-center">⌘B</CommandShortcut>
+
+            <CommandItem asChild>
+              <Link href="/images/upload">
+                <ImageIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Upload Image</span>
+                <CommandShortcut className="justify-center">⌘I</CommandShortcut>
+              </Link>
+            </CommandItem>
+
+            <CommandItem asChild>
+              <Link href="/videos/upload">
+                <VideoIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Upload Video</span>
+                <CommandShortcut className="justify-center">⌘V</CommandShortcut>
+              </Link>
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Navigation">
-            <CommandItem>
-              <ArrowUpRightIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>Go to dashboard</span>
+            <CommandItem asChild>
+              <Link href="/dashboard">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to dashboard</span>
+              </Link>
             </CommandItem>
-            <CommandItem>
-              <ArrowUpRightIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>Go to apps</span>
+            <CommandItem asChild>
+              <Link href="/images">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to images</span>
+              </Link>
             </CommandItem>
-            <CommandItem>
-              <ArrowUpRightIcon
-                size={16}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              <span>Go to connections</span>
+            <CommandItem asChild>
+              <Link href="/videos">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to Videos</span>
+              </Link>
+            </CommandItem>
+            <CommandItem asChild>
+              <Link href="/audios">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to Audios</span>
+              </Link>
+            </CommandItem>
+            <CommandItem asChild>
+              <Link href="/profile">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to Profile</span>
+              </Link>
+            </CommandItem>
+
+            <CommandItem asChild>
+              <Link href="/recents">
+                <ArrowUpRightIcon
+                  size={16}
+                  className="opacity-60"
+                  aria-hidden="true"
+                />
+                <span>Go to Recents</span>
+              </Link>
             </CommandItem>
           </CommandGroup>
         </CommandList>

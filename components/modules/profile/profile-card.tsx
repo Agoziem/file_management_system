@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useDeleteUser, useGetCurrentUserProfile } from "@/data/user";
 import { useGetAllFiles } from "@/data/files";
-import { useLogout } from "@/data/auth";
+import { useDisable2FA, useEnable2FA, useLogout } from "@/data/auth";
 import { parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
 import {
@@ -40,7 +40,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileEditModal from "./profile-edit-modal";
-import { UiSpinner } from "@/components/custom/spinner";
+import { ButtonSpinner, UiSpinner } from "@/components/custom/spinner";
+import { CustomDialog } from "@/components/custom/custom-dialog";
 
 interface FilesSummary {
   total: number;
@@ -70,6 +71,9 @@ const ProfileCard: React.FC = React.memo(() => {
   const { data: userFiles, isLoading: isLoadingFiles } = useGetAllFiles();
   const { mutateAsync: deleteUserMutation } = useDeleteUser();
   const { mutateAsync: logoutUser } = useLogout();
+  const [open2FAModal, setOpen2FAModal] = useState(false);
+  const { mutateAsync: enable2FA, isLoading: submitting } = useEnable2FA();
+  const { mutateAsync: disable2FA, isLoading: disabling } = useDisable2FA();
 
   // Memoized user display data
   const userDisplayData = useMemo(() => {
@@ -440,16 +444,16 @@ const ProfileCard: React.FC = React.memo(() => {
                         {user?.is_verified ? (
                           <Badge
                             variant="outline"
-                            className="bg-green-50 text-green-700 border-green-200"
+                            className="bg-green-50 dark:bg-green-700/40 text-green-500 border-green-200 dark:border-green-500/40"
                           >
-                            <Verified className="h-3 w-3 mr-1" />
+                            <Verified className="h-3 w-3" />
                             Verified
                           </Badge>
                         ) : (
                           <div className="space-y-2">
                             <Badge
                               variant="outline"
-                              className="bg-red-50 text-red-700 border-red-200 block"
+                              className="bg-red-50 dark:bg-red-700/40 text-red-500 border-red-200 dark:border-red-500/40"
                             >
                               Not Verified
                             </Badge>
@@ -498,41 +502,79 @@ const ProfileCard: React.FC = React.memo(() => {
                               ? "Two-factor authentication is enabled"
                               : "Two-factor authentication is disabled"}
                           </p>
-                          <p className="text-xs text-muted-foreground italic mt-1">
-                            ...coming soon
-                          </p>
                         </div>
                       </div>
-                      <div>
-                        {user?.two_factor_enabled ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-green-50 text-green-700 border-green-200"
-                          >
-                            <ShieldCheck className="h-3 w-3 mr-1" />
-                            Enabled
-                          </Badge>
-                        ) : (
-                          <div className="space-y-2">
-                            <Badge
-                              variant="outline"
-                              className="bg-red-50 text-red-700 border-red-200 block"
+
+                      <CustomDialog
+                        title="Two-Factor Authentication"
+                        showFooter={false}
+                        open={open2FAModal}
+                        onOpenChange={setOpen2FAModal}
+                        trigger={
+                          <div>
+                            {user?.two_factor_enabled ? (
+                              <div className="flex flex-col space-y-2">
+                                <Badge
+                                  variant="outline"
+                                  className="bg-green-50 dark:bg-green-700/40 text-green-500 border-green-200 dark:border-green-500/40"
+                                >
+                                  <ShieldCheck className="h-3 w-3" />
+                                  Enabled
+                                </Badge>
+                                <Button variant="outline" size="sm">
+                                  Disable 2FA
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col space-y-2">
+                                <Badge
+                                  variant="outline"
+                                  className="bg-red-50 dark:bg-red-700/40 text-red-500 border-red-200 dark:border-red-500/40 block"
+                                >
+                                  Disabled
+                                </Badge>
+                                <Button variant="outline" size="sm">
+                                  Enable 2FA
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        }
+                      >
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-4 bg-muted p-3 px-4 rounded-md">
+                            Two-factor authentication adds an extra layer of
+                            security to your account. When enabled, you will
+                            need to provide a verification code
+                          </p>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              onClick={() => {
+                                user?.two_factor_enabled
+                                  ? disable2FA()
+                                  : enable2FA();
+                                setOpen2FAModal(false);
+                              }}
+                              disabled={submitting}
                             >
-                              Disabled
-                            </Badge>
+                              {submitting ? (
+                                <ButtonSpinner label="submitting..." />
+                              ) : user?.two_factor_enabled ? (
+                                "Disable 2FA"
+                              ) : (
+                                "Enable 2FA"
+                              )}
+                            </Button>
                             <Button
                               variant="outline"
-                              size="sm"
-                              disabled
-                              onClick={() => {
-                                console.log("Enable 2FA clicked");
-                              }}
+                              className="ml-2"
+                              onClick={() => setOpen2FAModal(false)}
                             >
-                              Enable 2FA
+                              Cancel
                             </Button>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      </CustomDialog>
                     </div>
                   </div>
                 </CardContent>

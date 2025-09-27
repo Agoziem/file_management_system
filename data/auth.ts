@@ -225,6 +225,7 @@ export const useDisable2FA = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["user", "profile"]);
+      toast.success("2FA disabled successfully");
     },
     onError: (error: any) => {
       throw error

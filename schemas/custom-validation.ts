@@ -4,11 +4,11 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 
 export const optionalEmailSchema = z
-  .union([z.string().email(), z.literal(""), z.undefined()])
+  .union([z.email(), z.literal(""), z.undefined()])
   .optional();
 
 export const optionalUrlSchema = z.union([
-  z.string().url({ message: "Invalid URL." }),
+  z.url({ message: "Invalid URL." }),
   z.literal(""),
   z.undefined(),
 ]);

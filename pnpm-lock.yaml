@@ -57,7 +57,7 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-table':
-        specifier: ^1.1.1
+        specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       axios:
         specifier: ^1.11.0

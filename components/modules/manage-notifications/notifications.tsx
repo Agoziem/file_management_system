@@ -90,10 +90,10 @@ const Notifications = () => {
   };
 
   return (
-    <div className="p-8">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-primary">Notifications</h1>
-        <p className="text-sm">
+    <div className="p-4 sm:p-6 md:p-8">
+      <div className="text-center mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Notifications</h1>
+        <p className="text-xs sm:text-sm">
           list of all your sent notifications will be displayed here.
         </p>
       </div>

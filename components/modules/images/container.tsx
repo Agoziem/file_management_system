@@ -1,6 +1,9 @@
 "use client";
 import FilesDataTable from "@/components/custom/datatable";
+import { Button } from "@/components/ui/button";
 import { useDeleteFile, useGetAllFiles } from "@/data/files";
+import { Upload } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 
@@ -28,14 +31,22 @@ const ImagesContainer = () => {
     }
   };
   return (
-    <div className="w-full p-4">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight dark:text-white">
-          Images
-        </h2>
-        <p className="text-muted-foreground">
-          Manage and organize your images efficiently
-        </p>
+    <div className="w-full p-3 sm:p-4 md:p-6 space-y-6">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight dark:text-white">
+            Images
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Manage and organize your images efficiently
+          </p>
+        </div>
+        <Button className="" asChild>
+          <Link href="/images/upload">
+            <Upload className="h-4 w-4" />
+            <span>Upload Image</span>
+          </Link>
+        </Button>
       </div>
       <div>
         <FilesDataTable

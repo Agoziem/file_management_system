@@ -61,11 +61,11 @@ export default function RecentFilesList() {
   const { data: recentActivities } = useGetRecentActivity();
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight dark:text-white">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight dark:text-white">
           Recent Activity
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Your latest file operations and updates
         </p>
       </div>

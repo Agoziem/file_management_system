@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { DataGrid, DataGridContainer } from "@/components/ui/data-grid";
+import { DataGridColumnHeader } from "@/components/ui/data-grid-column-header";
+import { DataGridPagination } from "@/components/ui/data-grid-pagination";
+import { DataGridTable } from "@/components/ui/data-grid-table";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  FilterFn,
-  flexRender,
   getCoreRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -15,22 +17,15 @@ import {
   Row,
   SortingState,
   useReactTable,
-  VisibilityState,
 } from "@tanstack/react-table";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  ArchiveIcon,
   CheckIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
   CircleAlertIcon,
   CircleXIcon,
   Columns3Icon,
-  CopyIcon,
-  EditIcon,
+  DownloadIcon,
   EllipsisIcon,
   FileIcon,
   FilterIcon,
@@ -40,9 +35,22 @@ import {
   Share2Icon,
   TrashIcon,
   Upload,
+  XIcon,
 } from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,60 +62,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "../ui/skeleton";
-
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { FileResponse } from "@/types/files";
 import SocialShare from "@/components/custom/social-share";
 import moment from "moment";
 import Link from "next/link";
 import UploadDropdown from "./upload-dropdown";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type Item = FileResponse;
 
@@ -143,691 +109,7 @@ const formatDate = (dateString: string) => {
   return moment(dateString).format("MMM D, YYYY, h:mm A");
 };
 
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
-  const searchableRowContent = `${row.original.file_name}`.toLowerCase();
-  const searchTerm = (filterValue ?? "").toLowerCase();
-  return searchableRowContent.includes(searchTerm);
-};
-
-// Custom filter function for file type filtering
-const fileTypeFilterFn: FilterFn<Item> = (
-  row,
-  columnId,
-  filterValue: string[]
-) => {
-  if (!filterValue?.length) return true;
-  const fileType = row.getValue(columnId) as string;
-  return filterValue.includes(fileType);
-};
-
-// Column definitions
-const columns: ColumnDef<Item>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    size: 28,
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    header: "File Name",
-    accessorKey: "file_name",
-    cell: ({ row }) => (
-      <div
-        className="font-medium max-w-[200px] truncate"
-        title={row.getValue("file_name")}
-      >
-        {row.getValue("file_name")}
-      </div>
-    ),
-    size: 200,
-    filterFn: multiColumnFilterFn,
-    enableHiding: false,
-  },
-  {
-    header: "Type",
-    accessorKey: "file_type",
-    cell: ({ row }) => {
-      const fileType = row.getValue("file_type") as string;
-      return (
-        <Badge
-          variant="outline"
-          className="gap-1.5 capitalize dark:border-input"
-        >
-          <span
-            className={cn("size-1.5 rounded-full", getFileTypeColor(fileType))}
-            aria-hidden="true"
-          />
-          {fileType}
-        </Badge>
-      );
-    },
-    size: 100,
-    filterFn: fileTypeFilterFn,
-  },
-  {
-    header: "Size",
-    accessorKey: "file_size",
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {formatFileSize(row.getValue("file_size"))}
-      </div>
-    ),
-    size: 100,
-  },
-  {
-    header: "Created",
-    accessorKey: "created_at",
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {formatDate(row.getValue("created_at"))}
-      </div>
-    ),
-    size: 150,
-  },
-  {
-    header: "Modified",
-    accessorKey: "updated_at",
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {formatDate(row.getValue("updated_at"))}
-      </div>
-    ),
-    size: 150,
-  },
-  {
-    id: "actions",
-    header: () => <span className="sr-only">Actions</span>,
-    cell: ({ row }) => <RowActions row={row} />,
-    size: 60,
-    enableHiding: false,
-  },
-];
-
-// ====================================================
-// The Main Table Component
-// ====================================================
-export default function FilesDataTable({
-  data = [],
-  uploadlink,
-  buttonText,
-  onDeleteFiles,
-  loading,
-}: {
-  data?: Item[];
-  uploadlink?: string;
-  buttonText?: string;
-  onDeleteFiles?: (fileIds: string[]) => void;
-  loading?: boolean;
-}) {
-  const id = useId();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "file_name",
-      desc: false,
-    },
-  ]);
-
-  // Handle delete rows
-  const handleDeleteRows = () => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const fileIds = selectedRows.map((row) => row.original.id);
-
-    if (onDeleteFiles) {
-      onDeleteFiles(fileIds);
-    }
-
-    table.resetRowSelection();
-  };
-
-  // Initialize the table
-  const table = useReactTable({
-    data: data || [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    enableSortingRemoval: false,
-    getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    getFilteredRowModel: getFilteredRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    state: {
-      sorting,
-      pagination,
-      columnFilters,
-      columnVisibility,
-    },
-  });
-
-  // Get unique file type values
-  const uniqueFileTypeValues = useMemo(() => {
-    if (!data || data.length === 0) return [];
-
-    const fileTypeColumn = table.getColumn("file_type");
-    if (!fileTypeColumn) return [];
-
-    const values = Array.from(fileTypeColumn.getFacetedUniqueValues().keys());
-    return values.sort();
-  }, [data, table]);
-
-  // Get counts for each file type
-  const fileTypeCounts = useMemo(() => {
-    if (!data || data.length === 0) return new Map();
-
-    const fileTypeColumn = table.getColumn("file_type");
-    if (!fileTypeColumn) return new Map();
-    return fileTypeColumn.getFacetedUniqueValues();
-  }, [data, table]);
-
-  // Get selected file types
-  const selectedFileTypes = useMemo(() => {
-    const filterValue = table
-      .getColumn("file_type")
-      ?.getFilterValue() as string[];
-    return filterValue ?? [];
-  }, [columnFilters]);
-
-  // Handle file type filter change
-  const handleFileTypeChange = (checked: boolean, value: string) => {
-    const filterValue = table
-      .getColumn("file_type")
-      ?.getFilterValue() as string[];
-    const newFilterValue = filterValue ? [...filterValue] : [];
-
-    if (checked) {
-      newFilterValue.push(value);
-    } else {
-      const index = newFilterValue.indexOf(value);
-      if (index > -1) {
-        newFilterValue.splice(index, 1);
-      }
-    }
-
-    table
-      .getColumn("file_type")
-      ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          {/* Search files */}
-          <div className="relative">
-            <Input
-              id={`${id}-input`}
-              ref={inputRef}
-              className={cn(
-                "peer min-w-60 ps-9",
-                Boolean(table.getColumn("file_name")?.getFilterValue()) &&
-                  "pe-9"
-              )}
-              value={
-                (table.getColumn("file_name")?.getFilterValue() ?? "") as string
-              }
-              onChange={(e) =>
-                table.getColumn("file_name")?.setFilterValue(e.target.value)
-              }
-              placeholder="Search files..."
-              type="text"
-              aria-label="Search files"
-            />
-            <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-              <ListFilterIcon size={16} aria-hidden="true" />
-            </div>
-            {Boolean(table.getColumn("file_name")?.getFilterValue()) && (
-              <button
-                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Clear filter"
-                onClick={() => {
-                  table.getColumn("file_name")?.setFilterValue("");
-                  if (inputRef.current) {
-                    inputRef.current.focus();
-                  }
-                }}
-              >
-                <CircleXIcon size={16} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-          {/* Filter by file type */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <FilterIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                File Type
-                {selectedFileTypes.length > 0 && (
-                  <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                    {selectedFileTypes.length}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto min-w-36 p-3" align="start">
-              <div className="space-y-3">
-                <div className="text-muted-foreground text-xs font-medium">
-                  File Types
-                </div>
-                <div className="space-y-3">
-                  {uniqueFileTypeValues.map((value, i) => (
-                    <div key={value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${id}-${i}`}
-                        checked={selectedFileTypes.includes(value)}
-                        onCheckedChange={(checked: boolean) =>
-                          handleFileTypeChange(checked, value)
-                        }
-                      />
-                      <Label
-                        htmlFor={`${id}-${i}`}
-                        className="flex grow justify-between gap-2 font-normal capitalize"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "size-2 rounded-full",
-                              getFileTypeColor(value)
-                            )}
-                            aria-hidden="true"
-                          />
-                          {value}
-                        </div>
-                        <span className="text-muted-foreground ms-2 text-xs">
-                          {fileTypeCounts.get(value)}
-                        </span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          {/* Toggle columns visibility */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Columns3Icon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                View
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                      onSelect={(event) => event.preventDefault()}
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Delete button */}
-          {table.getSelectedRowModel().rows.length > 0 && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className="ml-auto" variant="outline">
-                  <TrashIcon
-                    className="-ms-1 opacity-60"
-                    size={16}
-                    aria-hidden="true"
-                  />
-                  Delete
-                  <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                    {table.getSelectedRowModel().rows.length}
-                  </span>
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <div className="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
-                  <div
-                    className="flex size-9 shrink-0 items-center justify-center rounded-full border"
-                    aria-hidden="true"
-                  >
-                    <CircleAlertIcon className="opacity-80" size={16} />
-                  </div>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete{" "}
-                      {table.getSelectedRowModel().rows.length} selected{" "}
-                      {table.getSelectedRowModel().rows.length === 1
-                        ? "row"
-                        : "rows"}
-                      .
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                </div>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteRows}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-          {/* Upload file button */}
-          {uploadlink ? (
-            <Button asChild>
-              <Link href={uploadlink || "/upload"}>
-                <PlusIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                {buttonText || "Upload File"}
-              </Link>
-            </Button>
-          ) : (
-            <UploadDropdown
-              component={
-                <Button className="bg-primary" size="sm">
-                  <Upload className="h-4 w-4" />
-                  <span className="">Upload file</span>
-                </Button>
-              }
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-card overflow-hidden rounded-md border">
-        <ScrollArea className="py-4">
-          {loading ? (
-            <div className="w-full px-4 py-8">
-              {/* Table header skeleton */}
-              <div className="flex mb-2">
-                {[...Array(columns.length)].map((_, idx) => (
-                  <Skeleton key={idx} className="h-6 flex-1 mx-1 bg-muted" />
-                ))}
-              </div>
-              {/* Table rows skeleton */}
-              {[...Array(6)].map((_, rowIdx) => (
-                <div key={rowIdx} className="flex mb-2">
-                  {[...Array(columns.length)].map((_, colIdx) => (
-                    <Skeleton
-                      key={colIdx}
-                      className="h-6 flex-1 mx-1 bg-muted"
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Table className="table-fixed">
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow
-                    key={headerGroup.id}
-                    className="hover:bg-transparent"
-                  >
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead
-                          key={header.id}
-                          style={{ width: `${header.getSize()}px` }}
-                          className="h-11"
-                        >
-                          {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                            <div
-                              className={cn(
-                                header.column.getCanSort() &&
-                                  "flex h-full cursor-pointer items-center justify-between gap-2 select-none dark:text-primary"
-                              )}
-                              onClick={header.column.getToggleSortingHandler()}
-                              onKeyDown={(e) => {
-                                // Enhanced keyboard handling for sorting
-                                if (
-                                  header.column.getCanSort() &&
-                                  (e.key === "Enter" || e.key === " ")
-                                ) {
-                                  e.preventDefault();
-                                  header.column.getToggleSortingHandler()?.(e);
-                                }
-                              }}
-                              tabIndex={
-                                header.column.getCanSort() ? 0 : undefined
-                              }
-                            >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                              {{
-                                asc: (
-                                  <ChevronUpIcon
-                                    className="shrink-0 opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                ),
-                                desc: (
-                                  <ChevronDownIcon
-                                    className="shrink-0 opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                ),
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                          ) : (
-                            flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )
-                          )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="last:py-0">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      <span className="inline-flex flex-col items-center gap-2 text-sm text-muted-foreground">
-                        <FileIcon className="size-8" />
-                        <span>No results.</span>
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor={id} className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger id={id} className="w-fit whitespace-nowrap">
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getRowCount().toString()}
-            </span>
-          </p>
-        </div>
-
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// Row Actions Component
 function RowActions({ row }: { row: Row<Item> }) {
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -839,85 +121,85 @@ function RowActions({ row }: { row: Row<Item> }) {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    try {
+      // Create a temporary anchor element to trigger download
+      // This bypasses CORS restrictions for direct downloads
+      const link = document.createElement("a");
+      link.href = row.original.file_url;
+      link.download = row.original.file_name;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("Download started");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download file");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex justify-end">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="shadow-none"
-            aria-label="File actions"
-          >
-            <EllipsisIcon size={16} aria-hidden="true" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          className="h-8 w-8 p-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="sr-only">Open menu</span>
+          <EllipsisIcon className="h-4 w-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <EditIcon
-              size={16}
-              className="opacity-60 hover:text-primary focus:text-primary"
-              aria-hidden="true"
-            />
-            <span>Edit</span>
-            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleCopyLink}>
-            {linkCopied ? (
-              <CheckIcon
-                size={16}
-                className="text-emerald-500"
-                aria-hidden="true"
-              />
-            ) : (
-              <LinkIcon
-                size={16}
-                className="opacity-60 hover:text-primary focus:text-primary"
-                aria-hidden="true"
-              />
-            )}
-            <span>Copy link</span>
-          </DropdownMenuItem>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Share2Icon
-                  size={16}
-                  className="opacity-60 hover:text-primary focus:text-primary"
-                  aria-hidden="true"
-                />
-                <span>Share</span>
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="max-w-md">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="sr-only">
-                  Share file
-                </AlertDialogTitle>
-              </AlertDialogHeader>
-              <SocialShare
-                fileUrl={row.original.file_url}
-              />
-              <AlertDialogFooter>
-                <AlertDialogCancel className="bg-primary text-white">
-                  Cancel
-                </AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuGroup>
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleDownload}>
+          <DownloadIcon className="h-4 w-4" />
+          Download
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleCopyLink}>
+          {linkCopied ? (
+            <CheckIcon className="h-4 w-4 text-emerald-500" />
+          ) : (
+            <LinkIcon className="h-4 w-4" />
+          )}
+          Copy link
+        </DropdownMenuItem>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <Share2Icon className="h-4 w-4" />
+              Share
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="sr-only">
+                Share file
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <SocialShare fileUrl={row.original.file_url} />
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-primary text-white">
+                Cancel
+              </AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <DropdownMenuSeparator />
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <DropdownMenuItem
-              variant="destructive"
               onSelect={(e) => e.preventDefault()}
+              variant="destructive"
             >
-              <TrashIcon size={16} aria-hidden="true" />
-              <span>Delete</span>
-              <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+              <TrashIcon className="h-4 w-4" />
+              Delete
             </DropdownMenuItem>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -931,8 +213,10 @@ function RowActions({ row }: { row: Row<Item> }) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete file?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete &ldquo;
-                  {row.original.file_name}&rdquo; and remove it from our servers.
+                  This action cannot be undone. This will permanently delete
+                  &ldquo;
+                  {row.original.file_name}&rdquo; and remove it from our
+                  servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
             </div>
@@ -946,5 +230,573 @@ function RowActions({ row }: { row: Row<Item> }) {
         </AlertDialog>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export default function FilesDataTable({
+  data = [],
+  uploadlink,
+  buttonText,
+  onDeleteFiles,
+  loading,
+}: {
+  data?: Item[];
+  uploadlink?: string;
+  buttonText?: string;
+  onDeleteFiles?: (fileIds: string[]) => void;
+  loading?: boolean;
+}) {
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "file_name", desc: false },
+  ]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>([]);
+  const [previewFile, setPreviewFile] = useState<Item | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Listen for file preview events
+  useEffect(() => {
+    const handlePreview = (event: Event) => {
+      const customEvent = event as CustomEvent<Item>;
+      setPreviewFile(customEvent.detail);
+      setShowPreview(true);
+    };
+
+    window.addEventListener("openFilePreview", handlePreview);
+    return () => window.removeEventListener("openFilePreview", handlePreview);
+  }, []);
+
+  const displayData = data && data.length > 0 ? data : [];
+
+  // Filter data based on search query and file type
+  const filteredData = useMemo(() => {
+    return displayData.filter((item) => {
+      // Filter by file type
+      const matchesFileType =
+        !selectedFileTypes?.length ||
+        selectedFileTypes.includes(item.file_type);
+
+      // Filter by search query (case-insensitive)
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        !searchQuery ||
+        item.file_name.toLowerCase().includes(searchLower) ||
+        item.file_type.toLowerCase().includes(searchLower);
+
+      return matchesFileType && matchesSearch;
+    });
+  }, [searchQuery, selectedFileTypes, displayData]);
+
+  // Count file types for filter badges
+  const fileTypeCounts = useMemo(() => {
+    return displayData.reduce((acc, item) => {
+      acc[item.file_type] = (acc[item.file_type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [displayData]);
+
+  // Get unique file types
+  const uniqueFileTypes = useMemo(() => {
+    return Object.keys(fileTypeCounts).sort();
+  }, [fileTypeCounts]);
+
+  const handleFileTypeChange = (checked: boolean, value: string) => {
+    setSelectedFileTypes((prev = []) =>
+      checked ? [...prev, value] : prev.filter((v) => v !== value)
+    );
+  };
+
+  // Handle delete selected rows
+  const handleDeleteRows = () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const fileIds = selectedRows.map((row) => row.original.id);
+
+    if (onDeleteFiles) {
+      onDeleteFiles(fileIds);
+    }
+
+    table.resetRowSelection();
+  };
+
+  const columns = useMemo<ColumnDef<Item>[]>(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        size: 35,
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "file_name",
+        id: "file_name",
+        header: ({ column }) => (
+          <DataGridColumnHeader title="File Name" column={column} />
+        ),
+        cell: ({ row }) => {
+          const fileType = row.original.file_type;
+          const isPreviewable = ["image", "video", "audio"].includes(fileType);
+
+          return (
+            <div
+              className={`font-medium whitespace-nowrap truncate ${
+                isPreviewable
+                  ? "cursor-pointer hover:text-primary hover:underline"
+                  : ""
+              }`}
+              title={row.getValue("file_name")}
+              onClick={() => {
+                if (isPreviewable) {
+                  const event = new CustomEvent("openFilePreview", {
+                    detail: row.original,
+                  });
+                  window.dispatchEvent(event);
+                }
+              }}
+            >
+              {row.getValue("file_name")}
+            </div>
+          );
+        },
+        size: 300,
+        enableSorting: true,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "file_type",
+        id: "file_type",
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Type" column={column} />
+        ),
+        cell: ({ row }) => {
+          const fileType = row.getValue("file_type") as string;
+          return (
+            <Badge
+              variant="outline"
+              className="gap-1.5 capitalize whitespace-nowrap"
+            >
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  getFileTypeColor(fileType)
+                )}
+                aria-hidden="true"
+              />
+              {fileType}
+            </Badge>
+          );
+        },
+        size: 120,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "file_size",
+        id: "file_size",
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Size" column={column} />
+        ),
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
+            {formatFileSize(row.getValue("file_size"))}
+          </div>
+        ),
+        size: 120,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "created_at",
+        id: "created_at",
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Created" column={column} />
+        ),
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
+            {formatDate(row.getValue("created_at"))}
+          </div>
+        ),
+        size: 200,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "updated_at",
+        id: "updated_at",
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Modified" column={column} />
+        ),
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
+            {formatDate(row.getValue("updated_at"))}
+          </div>
+        ),
+        size: 200,
+        enableSorting: true,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => <RowActions row={row} />,
+        size: 80,
+        enableSorting: false,
+        enableHiding: false,
+      },
+    ],
+    []
+  );
+
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    columns.map((column) => column.id as string)
+  );
+
+  const table = useReactTable({
+    columns,
+    data: filteredData,
+    pageCount: Math.ceil((filteredData?.length || 0) / pagination.pageSize),
+    getRowId: (row: Item) => row.id,
+    state: {
+      pagination,
+      sorting,
+      columnOrder,
+    },
+    onColumnOrderChange: setColumnOrder,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedFileTypes([]);
+  };
+
+  const hasActiveFilters = searchQuery !== "" || selectedFileTypes.length > 0;
+
+  // Loading state
+  if (loading) {
+    return (
+      <Card className="p-4 space-y-4">
+        <div className="flex flex-wrap gap-4">
+          <Skeleton className="h-10 w-[250px]" />
+          <Skeleton className="h-10 w-[200px]" />
+          <Skeleton className="h-10 w-[150px]" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </Card>
+    );
+  }
+
+  // Empty state
+  if (!filteredData || filteredData.length === 0) {
+    return (
+      <Card className="p-8">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <FileIcon className="w-12 h-12 text-muted-foreground" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">
+              {hasActiveFilters ? "No files found" : "No files available"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {hasActiveFilters
+                ? "Try adjusting your filters to find what you're looking for."
+                : "No files have been uploaded yet."}
+            </p>
+          </div>
+          {hasActiveFilters && (
+            <Button variant="outline" onClick={clearFilters}>
+              <XIcon className="h-4 w-4" />
+              Clear filters
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card className="p-6">
+        {/* DataTable Filters */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Search */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Search</Label>
+              <div className="relative">
+                <ListFilterIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search files..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+                {searchQuery && (
+                  <button
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <CircleXIcon className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* File Type Filter */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">File Type</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full justify-between"
+                  >
+                    <span>
+                      {selectedFileTypes.length === 0
+                        ? "All Types"
+                        : `${selectedFileTypes.length} selected`}
+                    </span>
+                    <FilterIcon className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start">
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Filter by Type
+                    </div>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                      {uniqueFileTypes.map((fileType) => (
+                        <div
+                          key={fileType}
+                          className="flex items-center gap-2.5"
+                        >
+                          <Checkbox
+                            id={fileType}
+                            checked={selectedFileTypes.includes(fileType)}
+                            onCheckedChange={(checked) =>
+                              handleFileTypeChange(checked === true, fileType)
+                            }
+                          />
+                          <Label
+                            htmlFor={fileType}
+                            className="flex grow items-center justify-between gap-2 font-normal cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "size-2 rounded-full",
+                                  getFileTypeColor(fileType)
+                                )}
+                              />
+                              {fileType}
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {fileTypeCounts[fileType]}
+                            </span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            {/* Column Visibility */}
+            <div className="space-y-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-[200px] justify-between"
+                  >
+                    Toggle Columns
+                    <Columns3Icon className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                        onSelect={(e) => e.preventDefault()}
+                        className="capitalize"
+                      >
+                        {column.id.replace(/_/g, " ")}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Delete Selected */}
+            {table.getSelectedRowModel().rows.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="lg"
+                    className="min-w-[180px]"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    Delete ({table.getSelectedRowModel().rows.length})
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete selected files?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete{" "}
+                      {table.getSelectedRowModel().rows.length} selected{" "}
+                      {table.getSelectedRowModel().rows.length === 1
+                        ? "file"
+                        : "files"}
+                      .
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteRows}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">
+                {filteredData.length} of {displayData.length} files
+              </Badge>
+
+              {selectedFileTypes.length > 0 && (
+                <Badge variant="outline">
+                  Types:{" "}
+                  {selectedFileTypes
+                    .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+                    .join(", ")}
+                </Badge>
+              )}
+
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <XIcon className="h-4 w-4" />
+                Clear filters
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Data Grid */}
+        <DataGrid
+          table={table}
+          recordCount={filteredData?.length || 0}
+          tableLayout={{
+            columnsMovable: true,
+          }}
+        >
+          <div className="w-full space-y-2.5">
+            <DataGridContainer>
+              <ScrollArea>
+                <DataGridTable />
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            </DataGridContainer>
+            <DataGridPagination />
+          </div>
+        </DataGrid>
+      </Card>
+
+      {/* File Preview Modal */}
+      <AlertDialog open={showPreview} onOpenChange={setShowPreview}>
+        <AlertDialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <AlertDialogHeader>
+            <div className="flex items-center justify-between">
+              <AlertDialogTitle className="text-lg font-semibold line-clamp-2">
+                {previewFile?.file_name}
+              </AlertDialogTitle>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+              >
+                <XIcon className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </button>
+            </div>
+          </AlertDialogHeader>
+          <ScrollArea className="mt-4 max-h-[60vh]">
+            {previewFile?.file_type === "image" && (
+              <img
+                src={previewFile.file_url}
+                alt={previewFile.file_name}
+                className="w-full h-auto rounded-lg"
+              />
+            )}
+            {previewFile?.file_type === "video" && (
+              <video
+                src={previewFile.file_url}
+                controls
+                className="w-full h-auto rounded-lg"
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
+            {previewFile?.file_type === "audio" && (
+              <div className="flex flex-col items-center justify-center p-8">
+                <audio
+                  src={previewFile.file_url}
+                  controls
+                  className="w-full max-w-md"
+                >
+                  Your browser does not support the audio tag.
+                </audio>
+              </div>
+            )}
+          </ScrollArea>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

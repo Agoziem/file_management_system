@@ -173,8 +173,8 @@ const ProfileCard: React.FC = React.memo(() => {
   if (!userDisplayData) return null;
 
   return (
-    <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="container mx-auto p-3 sm:p-4 lg:p-6 max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Profile Navigation Sidebar */}
         <div className="lg:col-span-4">
           <Card>
@@ -201,7 +201,7 @@ const ProfileCard: React.FC = React.memo(() => {
                 </div>
               </div>
 
-              <Separator className="my-6" />
+              <Separator className="my-4 sm:my-6" />
 
               {/* Navigation Tabs */}
               <Tabs
@@ -210,7 +210,7 @@ const ProfileCard: React.FC = React.memo(() => {
                   handleSectionChange(value as ProfileSection)
                 }
                 orientation="vertical"
-                className="w-full flex-row pt-6"
+                className="w-full flex-row pt-4 sm:pt-6"
               >
                 <TabsList className="text-foreground flex-col gap-1 rounded-none bg-transparent px-1 py-0">
                   <TabsTrigger
@@ -263,68 +263,70 @@ const ProfileCard: React.FC = React.memo(() => {
             {/* Account Settings Section */}
             <TabsContent value="account" className="space-y-0">
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                   <div>
-                    <h2 className="text-2xl font-bold">Account Settings</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-xl sm:text-2xl font-bold">
+                      Account Settings
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
                       Manage your account information and preferences
                     </p>
                   </div>
                   <ProfileEditModal />
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 sm:space-y-6">
                   {/* Personal Information */}
                   <div>
-                    <h3 className="text-lg font-semibold text-primary mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-primary mb-3 sm:mb-4">
                       Personal Information
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-sm font-medium">
-                          <User className="h-4 w-4 text-primary" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
+                          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                           <span>Full Name</span>
                         </div>
-                        <p className="text-muted-foreground pl-6">
+                        <p className="text-sm text-muted-foreground pl-5 sm:pl-6">
                           {userDisplayData.fullName}
                         </p>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-sm font-medium">
-                          <Mail className="h-4 w-4 text-primary" />
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
+                          <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                           <span>Email</span>
                         </div>
-                        <p className="text-muted-foreground pl-6">
+                        <p className="text-sm text-muted-foreground pl-5 sm:pl-6">
                           {user.email || "Not available"}
                         </p>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-sm font-medium">
-                          <User className="h-4 w-4 text-primary" />
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
+                          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                           <span>Gender</span>
                         </div>
-                        <p className="text-muted-foreground pl-6">
+                        <p className="text-sm text-muted-foreground pl-5 sm:pl-6">
                           {user.gender || "Not specified"}
                         </p>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-sm font-medium">
-                          <Phone className="h-4 w-4 text-primary" />
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
+                          <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                           <span>Phone Number</span>
                         </div>
-                        <p className="text-muted-foreground pl-6">
+                        <p className="text-sm text-muted-foreground pl-5 sm:pl-6">
                           {user.phone || "Not provided"}
                         </p>
                       </div>
 
-                      <div className="space-y-2 md:col-span-2">
-                        <div className="flex items-center space-x-2 text-sm font-medium">
-                          <MapPin className="h-4 w-4 text-primary" />
+                      <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
+                          <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                           <span>Address</span>
                         </div>
-                        <p className="text-muted-foreground pl-6">
+                        <p className="text-sm text-muted-foreground pl-5 sm:pl-6">
                           {user.address || "Not provided"}
                         </p>
                       </div>
@@ -335,61 +337,61 @@ const ProfileCard: React.FC = React.memo(() => {
 
                   {/* Files Summary */}
                   <div>
-                    <h3 className="text-lg font-semibold text-primary mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-primary mb-3 sm:mb-4">
                       Files Summary
                     </h3>
                     {isLoadingFiles ? (
-                      <div className="flex items-center justify-center py-6">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                        <span className="ml-2 text-sm text-muted-foreground">
+                      <div className="flex items-center justify-center py-4 sm:py-6">
+                        <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-primary"></div>
+                        <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
                           Loading files...
                         </span>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         <Card>
-                          <CardContent className="p-4 text-center">
-                            <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold text-primary">
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-primary" />
+                            <div className="text-xl sm:text-2xl font-bold text-primary">
                               {filesSummary.total}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               Total Files
                             </p>
                           </CardContent>
                         </Card>
 
                         <Card>
-                          <CardContent className="p-4 text-center">
-                            <ImageIcon className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                            <div className="text-2xl font-bold text-green-600">
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-green-600" />
+                            <div className="text-xl sm:text-2xl font-bold text-green-600">
                               {filesSummary.images}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               Images
                             </p>
                           </CardContent>
                         </Card>
 
                         <Card>
-                          <CardContent className="p-4 text-center">
-                            <Video className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                            <div className="text-2xl font-bold text-blue-600">
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <Video className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-blue-600" />
+                            <div className="text-xl sm:text-2xl font-bold text-blue-600">
                               {filesSummary.videos}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               Videos
                             </p>
                           </CardContent>
                         </Card>
 
                         <Card>
-                          <CardContent className="p-4 text-center">
-                            <Music className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                            <div className="text-2xl font-bold text-purple-600">
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <Music className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-purple-600" />
+                            <div className="text-xl sm:text-2xl font-bold text-purple-600">
                               {filesSummary.audios}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               Audio
                             </p>
                           </CardContent>
@@ -419,14 +421,16 @@ const ProfileCard: React.FC = React.memo(() => {
                       Email Verification
                     </h3>
                     <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 min-w-0">
                         {user?.is_verified ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
                         ) : (
-                          <XCircle className="h-5 w-5 text-red-600" />
+                          <XCircle className="h-5 w-5 text-red-600 shrink-0" />
                         )}
-                        <div>
-                          <p className="font-medium">{user.email}</p>
+
+                        {/* THIS IS THE IMPORTANT PART */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{user.email}</p>
                           <p
                             className={`text-sm ${
                               user?.is_verified
@@ -440,13 +444,14 @@ const ProfileCard: React.FC = React.memo(() => {
                           </p>
                         </div>
                       </div>
-                      <div>
+
+                      <div className="shrink-0">
                         {user?.is_verified ? (
                           <Badge
                             variant="outline"
                             className="bg-green-50 dark:bg-green-700/40 text-green-500 border-green-200 dark:border-green-500/40"
                           >
-                            <Verified className="h-3 w-3" />
+                            <Verified className="h-3 w-3 mr-1" />
                             Verified
                           </Badge>
                         ) : (
@@ -461,7 +466,6 @@ const ProfileCard: React.FC = React.memo(() => {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                console.log("Verify email clicked");
                                 toast.info("Email verification coming soon");
                               }}
                             >

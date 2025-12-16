@@ -39,11 +39,11 @@ const NotificationCard = ({
 
   return (
     <div
-      className="p-4 mb-4 border rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center"
+      className="p-3 sm:p-4 mb-3 sm:mb-4 border rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center gap-2 sm:gap-3"
       onClick={() => onClick(notification)}
     >
-      <div className="flex items-center">
-        <div className="flex-shrink-0 mr-4 flex items-center gap-2">
+      <div className="flex items-center min-w-0 flex-1">
+        <div className="flex-shrink-0 mr-2 sm:mr-4 flex items-center gap-1 sm:gap-2">
           <GoDotFill
             className={isRead ? "text-muted-foreground" : "text-primary"}
             size={20}
@@ -61,18 +61,18 @@ const NotificationCard = ({
             </div>
           )}
         </div>
-        <div>
+        <div className="min-w-0 flex-1">
           <h2
             className={
               isRead
-                ? "font-semibold text-muted-foreground"
-                : "font-semibold text-primary"
+                ? "font-semibold text-sm sm:text-base text-muted-foreground truncate"
+                : "font-semibold text-sm sm:text-base text-primary truncate"
             }
           >
             {notification.title}
           </h2>
-          <p className="text-sm text-muted-foreground">{notification.message}</p>
-          <span className="text-xs text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{notification.message}</p>
+          <span className="text-[10px] sm:text-xs text-muted-foreground">
             {moment(notification.created_at).fromNow()}
           </span>
         </div>
@@ -80,8 +80,8 @@ const NotificationCard = ({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div onClick={(e) => e.stopPropagation()} className="cursor-pointer">
-            <BsThreeDotsVertical />
+          <div onClick={(e) => e.stopPropagation()} className="cursor-pointer flex-shrink-0 p-1">
+            <BsThreeDotsVertical className="text-base sm:text-lg" />
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent

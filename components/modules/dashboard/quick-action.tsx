@@ -40,19 +40,19 @@ const fetchQuickActions = [
 
 const QuickActions = () => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
       {fetchQuickActions.map((action) => (
         <Card key={action.id} className="p-0">
           <Link
-            className="flex flex-col items-center justify-center p-6 rounded-lg shadow-sm transition-colors h-full min-w-0 border border-border dark:border-0"
+            className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-lg shadow-sm transition-colors h-full min-w-0 border border-border dark:border-0"
             href={action.href}
           >
             <div
-              className={`h-12 w-12 rounded-full mb-3 shrink-0 flex items-center justify-center ${action.iconBg} ${action.iconColor}`}
+              className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full mb-2 sm:mb-3 shrink-0 flex items-center justify-center ${action.iconBg} ${action.iconColor}`}
             >
-              {action.icon}
+              <div className="scale-75 sm:scale-100">{action.icon}</div>
             </div>
-            <span className="text-sm font-medium text-center whitespace-nowrap dark:text-white">
+            <span className="text-xs sm:text-sm font-medium text-center whitespace-nowrap dark:text-white">
               {action.title}
             </span>
           </Link>

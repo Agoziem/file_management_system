@@ -1,7 +1,14 @@
 import { useGetAllFiles, useGetStorageInfo } from "@/data/files";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { ChartRadialShape } from "./storage-chart";
-import { FileIcon, FileText, Image, LucideProps, Music, Video } from "lucide-react";
+import {
+  FileIcon,
+  FileText,
+  Image,
+  LucideProps,
+  Music,
+  Video,
+} from "lucide-react";
 import { RefAttributes, useMemo } from "react";
 import { formatFileSize } from "@/utils/utility";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,55 +16,58 @@ import { Skeleton } from "@/components/ui/skeleton";
 const fileTypes = ["image", "video", "audio", "document", "other"];
 
 type StorageData = {
-  type: typeof fileTypes[number];
+  type: (typeof fileTypes)[number];
   files: number;
   size: string;
-  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-}
+  icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+};
 
 const getFileIcon = (fileType: string) => {
   switch (fileType) {
-    case 'image':
-      return Image
-    case 'video':
-      return Video
-    case 'audio':
-      return Music
-    case 'document':
-      return FileText
+    case "image":
+      return Image;
+    case "video":
+      return Video;
+    case "audio":
+      return Music;
+    case "document":
+      return FileText;
     default:
-      return FileIcon
+      return FileIcon;
   }
-}
+};
 
 export const StoragePanelContent = () => {
   const { data: storageInfo, isLoading, error } = useGetStorageInfo();
   const { data: userFiles, isLoading: isLoadingFiles } = useGetAllFiles();
 
   const storageData: StorageData[] = useMemo(() => {
-  const fileTypeMap: { [key: string]: { count: number; totalSize: number } } = {};
+    const fileTypeMap: { [key: string]: { count: number; totalSize: number } } =
+      {};
 
-  if (userFiles) {
-    userFiles.items.forEach(file => {
-      const type = file.file_type || "other";
-      if (!fileTypeMap[type]) {
-        fileTypeMap[type] = { count: 0, totalSize: 0 };
-      }
-      fileTypeMap[type].count += 1;
-      fileTypeMap[type].totalSize += file.file_size;
+    if (userFiles) {
+      userFiles.items.forEach((file) => {
+        const type = file.file_type || "other";
+        if (!fileTypeMap[type]) {
+          fileTypeMap[type] = { count: 0, totalSize: 0 };
+        }
+        fileTypeMap[type].count += 1;
+        fileTypeMap[type].totalSize += file.file_size;
+      });
+    }
+
+    return fileTypes.map((type) => {
+      const { count = 0, totalSize = 0 } = fileTypeMap[type] || {};
+      return {
+        type,
+        files: count,
+        size: count === 0 ? "0 MB" : formatFileSize(totalSize),
+        icon: getFileIcon(type),
+      };
     });
-  }
-
-  return fileTypes.map(type => {
-    const { count = 0, totalSize = 0 } = fileTypeMap[type] || {};
-    return {
-      type,
-      files: count,
-      size: count === 0 ? "0 MB" : formatFileSize(totalSize),
-      icon: getFileIcon(type),
-    };
-  });
-}, [userFiles]);
+  }, [userFiles]);
 
   if (isLoading || isLoadingFiles) {
     return (
@@ -98,26 +108,31 @@ export const StoragePanelContent = () => {
   }
 
   return (
-    <Card className="mb-6 ">
-      <CardHeader>
-        <CardTitle className="text-lg font-century-gothic">
+    <Card className="mb-4 sm:mb-6">
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="text-base sm:text-lg font-century-gothic">
           Storage usage
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartRadialShape totalStorage={storageInfo?.total_space || 0} usedStorage={storageInfo?.used_space || 0} />
+      <CardContent className="px-4 sm:px-6">
+        <ChartRadialShape
+          totalStorage={storageInfo?.total_space || 0}
+          usedStorage={storageInfo?.used_space || 0}
+        />
 
-        <div className="space-y-4 mt-2">
+        <div className="space-y-3 sm:space-y-4 mt-2">
           {storageData.map((item, index) => (
-            <div key={index} className="flex items-center gap-3">
-              <div className="bg-secondary flex h-8 w-8 items-center justify-center rounded-lg">
+            <div key={index} className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-secondary flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg flex-shrink-0">
                 <item.icon className="text-secondary-foreground h-4 w-4" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="mb-1 flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.type}</span>
+                  <span className="text-xs sm:text-sm font-medium capitalize truncate">
+                    {item.type}
+                  </span>
                 </div>
-                <div className="text-muted-foreground text-xs">
+                <div className="text-muted-foreground text-[10px] sm:text-xs">
                   {item.files} Files | {item.size}
                 </div>
               </div>

@@ -24,6 +24,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </ScrollArea>
         </main>
       </SidebarProvider>
+      
     </div>
   );
 };

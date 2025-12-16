@@ -150,11 +150,11 @@ export default function ProfileEditModal() {
         <ScrollArea className="flex max-h-full flex-col overflow-hidden">
           {/* <ProfileBg />
           <Avatar /> */}
-          <div className="px-6 pt-4 pb-6">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-4 sm:pb-6">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
+                className="space-y-4 sm:space-y-6 md:space-y-8"
               >
                 {/* Avatar Upload */}
                 <FormField

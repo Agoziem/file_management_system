@@ -90,12 +90,12 @@ const NotificationContainer = () => {
   };
 
   return (
-    <div className="w-full p-4">
-      <div className="mb-6">
+    <div className="w-full p-3 sm:p-4 md:p-6">
+      <div className="mb-4 sm:mb-6">
         <h2 className="text-2xl font-bold tracking-tight dark:text-white">
           Notifications
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Manage and organize your notifications efficiently
         </p>
       </div>

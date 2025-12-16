@@ -4,7 +4,7 @@ import RecentFilesList from './recent-timeline'
 
 const RecentContainer = () => {
   return (
-    <div className='p-4'>
+    <div className='p-3 sm:p-4 md:p-6'>
         {/* Recent files list will go here */}
         <RecentFilesList />
     </div>

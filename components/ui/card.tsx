@@ -81,6 +81,36 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+function CardHeading({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-heading"
+      className={cn("flex items-center gap-2", className)}
+      {...props}
+    />
+  )
+}
+
+function CardToolbar({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-toolbar"
+      className={cn("flex items-center gap-2 ml-auto", className)}
+      {...props}
+    />
+  )
+}
+
+function CardTable({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-table"
+      className={cn("", className)}
+      {...props}
+    />
+  )
+}
+
 export {
   Card,
   CardHeader,
@@ -89,4 +119,7 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  CardHeading,
+  CardToolbar,
+  CardTable,
 }

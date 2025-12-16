@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Folder, LogOut, LucideGem, Star } from "lucide-react";
+import { Folder, LogOut, LucideGem, Star, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   Sidebar,
@@ -35,6 +35,19 @@ const AppSidebar = () => {
   } = useSidebar();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  const handleLinkClick = () => {
+    // Close sidebar on mobile when a link is clicked
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  const handleCloseSidebar = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   return (
     <>
       <Sidebar collapsible="icon" className="border-0">
@@ -45,6 +58,18 @@ const AppSidebar = () => {
             </div>
             {state === "expanded" && (
               <span className="text-lg font-semibold">File Manager</span>
+            )}
+
+            {/* Close button for mobile */}
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCloseSidebar}
+                className="ml-auto h-8 w-8"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             )}
           </div>
         </SidebarHeader>
@@ -65,7 +90,7 @@ const AppSidebar = () => {
                           tooltip={item.label}
                           className="h-[36px]"
                         >
-                          <Link href={item.href}>
+                          <Link href={item.href} onClick={handleLinkClick}>
                             {item.icon && <item.icon size={18} />}
                             <span>{item.label}</span>
                           </Link>

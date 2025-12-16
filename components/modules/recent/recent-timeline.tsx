@@ -60,12 +60,12 @@ const getActionColor = (action: FileActivityActions): string => {
 export default function RecentFilesList() {
   const { data: recentActivities } = useGetRecentActivity();
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-0">
       <div className="mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight dark:text-white">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight dark:text-white">
           Recent Activity
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Your latest file operations and updates
         </p>
       </div>
@@ -93,33 +93,33 @@ export default function RecentFilesList() {
                 </TimelineIndicator>
               </TimelineHeader>
               <TimelineContent>
-                <Card className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-lg">
-                      <FileIconComponent className="text-primary h-6 w-6" />
+                <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="bg-secondary flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg shrink-0">
+                      <FileIconComponent className="text-primary h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="truncate text-sm font-medium">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                        <p className="truncate text-xs sm:text-sm font-medium">
                           {activity.file_name}
                         </p>
                         <span
-                          className={`text-xs px-2 py-1 rounded-full bg-opacity-10 ${getActionColor(
+                          className={`text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full bg-opacity-10 w-fit ${getActionColor(
                             activity.action
                           )}`}
                         >
                           {activity.action}
                         </span>
                       </div>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs">
                         {formatFileSize(activity.file_size)} •{" "}
                         {activity.file_type.toUpperCase()}
                       </p>
-                      <p className="text-muted-foreground text-xs mt-1">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">
                         Created: {formatDate(activity.timestamp)}
                       </p>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="hidden sm:flex flex-col items-end gap-1">
                       <div className="flex items-center gap-1">
                         <CheckIcon className="h-4 w-4 text-green-500" />
                         <span className="text-xs text-muted-foreground">

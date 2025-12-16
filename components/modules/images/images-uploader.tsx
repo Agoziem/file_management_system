@@ -88,21 +88,21 @@ export default function ImagesUploader({
           {files.map((file) => (
             <div
               key={file.id}
-              className="bg-card flex items-center justify-between gap-2 rounded-lg border p-2 pe-3"
+              className="bg-card flex items-center justify-between gap-2 rounded-lg border p-2 sm:pe-3"
             >
-              <div className="flex items-center gap-3 overflow-hidden">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
                 <div className="bg-accent aspect-square shrink-0 rounded">
                   <img
                     src={file.preview}
                     alt={file.file.name}
-                    className="size-10 rounded-[inherit] object-cover"
+                    className="size-8 sm:size-10 rounded-[inherit] object-cover"
                   />
                 </div>
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <p className="truncate text-[13px] font-medium">
+                  <p className="truncate text-xs sm:text-[13px] font-medium">
                     {file.file.name}
                   </p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-muted-foreground text-[10px] sm:text-xs">
                     {formatBytes(file.file.size)}
                   </p>
                 </div>
@@ -122,8 +122,8 @@ export default function ImagesUploader({
 
           {/* Remove all files button */}
           {files.length > 0 && (
-            <div className="pt-2 flex gap-2">
-              <Button size="sm" variant="outline" onClick={clearFiles}>
+            <div className="pt-2 flex flex-col sm:flex-row gap-2">
+              <Button size="sm" variant="outline" onClick={clearFiles} className="w-full sm:w-auto">
                 {files.length > 1 ? "Remove all files" : "Remove file"}
               </Button>
               {/* to be implemented later */}
@@ -139,6 +139,7 @@ export default function ImagesUploader({
                   }
                   clearFiles();
                 }}
+                className="w-full sm:w-auto"
               >
                 {uploading ? (
                   <ButtonSpinner label="Uploading..." />

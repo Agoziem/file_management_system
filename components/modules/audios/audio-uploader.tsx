@@ -154,24 +154,26 @@ export default function AudioUploader({
         />
         {files.length > 0 ? (
           <div className="flex w-full flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h3 className="truncate text-sm font-medium">
                 Audios ({files.length})
               </h3>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={openFileDialog}>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={openFileDialog} className="flex-1 sm:flex-none">
                   <UploadIcon
                     className="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                   />
-                  Add audios
+                  <span className="hidden sm:inline">Add audios</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={clearFiles}>
+                <Button variant="outline" size="sm" onClick={clearFiles} className="flex-1 sm:flex-none">
                   <Trash2Icon
                     className="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                   />
-                  Remove all
+                  <span className="hidden sm:inline">Remove all</span>
+                  <span className="sm:hidden">Remove</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -186,6 +188,7 @@ export default function AudioUploader({
                     }
                     clearFiles();
                   }}
+                  className="flex-1 sm:flex-none"
                 >
                   {uploading ? (
                     <ButtonSpinner label="Uploading..." />
@@ -196,7 +199,7 @@ export default function AudioUploader({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {files.map((file) => (
                 <div
                   key={file.id}
@@ -211,11 +214,11 @@ export default function AudioUploader({
                   >
                     <XIcon className="size-3.5" />
                   </Button>
-                  <div className="flex min-w-0 flex-col gap-0.5 border-t p-3">
-                    <p className="truncate text-[13px] font-medium">
+                  <div className="flex min-w-0 flex-col gap-0.5 border-t p-2 sm:p-3">
+                    <p className="truncate text-xs sm:text-[13px] font-medium">
                       {file.file.name}
                     </p>
-                    <p className="text-muted-foreground truncate text-xs">
+                    <p className="text-muted-foreground truncate text-[10px] sm:text-xs">
                       {formatBytes(file.file.size)}
                     </p>
                   </div>

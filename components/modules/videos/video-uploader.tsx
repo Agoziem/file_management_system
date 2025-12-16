@@ -18,31 +18,6 @@ import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/custom/spinner";
 
-// Create some dummy initial video files
-const initialFiles = [
-  {
-    name: "presentation_demo.mp4",
-    size: 52428800, // ~50MB
-    type: "video/mp4",
-    url: "https://example.com/presentation_demo.mp4",
-    id: "presentation_demo-1744638436563-8u5xuls",
-  },
-  {
-    name: "tutorial_intro.mov",
-    size: 104857600, // ~100MB
-    type: "video/quicktime",
-    url: "https://example.com/tutorial_intro.mov",
-    id: "tutorial_intro-123456789",
-  },
-  {
-    name: "conference_recording.webm",
-    size: 78643200, // ~75MB
-    type: "video/webm",
-    url: "https://example.com/conference_recording.webm",
-    id: "conference_recording-987654321",
-  },
-];
-
 const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
   const fileType = file.file instanceof File ? file.file.type : file.file.type;
   const fileName = file.file instanceof File ? file.file.name : file.file.name;
@@ -193,7 +168,6 @@ export default function VideoUploader({
     multiple: true,
     maxFiles,
     maxSize,
-    initialFiles,
     accept,
   });
 
@@ -216,24 +190,26 @@ export default function VideoUploader({
         />
         {files.length > 0 ? (
           <div className="flex w-full flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h3 className="truncate text-sm font-medium">
                 Videos ({files.length})
               </h3>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={openFileDialog}>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={openFileDialog} className="flex-1 sm:flex-none">
                   <UploadIcon
                     className="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                   />
-                  Add videos
+                  <span className="hidden sm:inline">Add videos</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={clearFiles}>
+                <Button variant="outline" size="sm" onClick={clearFiles} className="flex-1 sm:flex-none">
                   <Trash2Icon
                     className="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                   />
-                  Remove all
+                  <span className="hidden sm:inline">Remove all</span>
+                  <span className="sm:hidden">Remove</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -248,6 +224,7 @@ export default function VideoUploader({
                     }
                     clearFiles();
                   }}
+                  className="flex-1 sm:flex-none"
                 >
                   {uploading ? (
                     <ButtonSpinner label="Uploading..." />
@@ -258,7 +235,7 @@ export default function VideoUploader({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {files.map((file) => (
                 <div
                   key={file.id}
@@ -273,11 +250,11 @@ export default function VideoUploader({
                   >
                     <XIcon className="size-3.5" />
                   </Button>
-                  <div className="flex min-w-0 flex-col gap-0.5 border-t p-3">
-                    <p className="truncate text-[13px] font-medium">
+                  <div className="flex min-w-0 flex-col gap-0.5 border-t p-2 sm:p-3">
+                    <p className="truncate text-xs sm:text-[13px] font-medium">
                       {file.file.name}
                     </p>
-                    <p className="text-muted-foreground truncate text-xs">
+                    <p className="text-muted-foreground truncate text-[10px] sm:text-xs">
                       {formatBytes(file.file.size)}
                     </p>
                   </div>

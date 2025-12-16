@@ -91,19 +91,19 @@ export default function DocumentsUploader({
           {files.map((file) => (
             <div
               key={file.id}
-              className="bg-card flex items-center justify-between gap-2 rounded-lg border p-2 pe-3"
+              className="bg-card flex items-center justify-between gap-2 rounded-lg border p-2 sm:pe-3"
             >
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="bg-secondary text-secondary-foreground flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                <div className="bg-secondary text-secondary-foreground flex aspect-square size-8 sm:size-10 shrink-0 items-center justify-center rounded border">
                   {getFileIcon(file)}
                 </div>
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <p className="truncate text-[13px] font-medium">
+                  <p className="truncate text-xs sm:text-[13px] font-medium">
                     {file.file instanceof File
                       ? file.file.name
                       : file.file.name}
                   </p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-muted-foreground text-[10px] sm:text-xs">
                     {formatBytes(
                       file.file instanceof File
                         ? file.file.size
@@ -127,8 +127,8 @@ export default function DocumentsUploader({
 
           {/* Remove all files button */}
           {files.length > 0 && (
-            <div className="pt-2 flex gap-2">
-              <Button size="sm" variant="outline" onClick={clearFiles}>
+            <div className="pt-2 flex flex-col sm:flex-row gap-2">
+              <Button size="sm" variant="outline" onClick={clearFiles} className="w-full sm:w-auto">
                 {files.length > 1 ? "Remove all files" : "Remove file"}
               </Button>
               {/* to be implemented later */}
@@ -144,6 +144,7 @@ export default function DocumentsUploader({
                   }
                   clearFiles();
                 }}
+                className="w-full sm:w-auto"
               >
                 {uploading ? (
                   <ButtonSpinner label="Uploading..." />
